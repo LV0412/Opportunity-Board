@@ -1,0 +1,47 @@
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+  mail:
+    host: ${SMTP_HOST:smtp.example.com}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USERNAME:}
+    password: ${SMTP_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: ${SMTP_AUTH:true}
+          starttls:
+            enable: ${SMTP_STARTTLS_ENABLE:true}
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/opportunity_board}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+
+app:
+  frontend-url: ${FRONTEND_URL:http://localhost:5173}
+  cors:
+    allowed-origins: ${FRONTEND_URL:http://localhost:5173}
+  jwt:
+    secret: ${JWT_SECRET:change-me-to-a-long-random-secret}
+    expiration-ms: ${JWT_EXPIRATION:86400000}
+  cloudinary:
+    cloud-name: ${CLOUDINARY_CLOUD_NAME:}
+    api-key: ${CLOUDINARY_API_KEY:}
+    api-secret: ${CLOUDINARY_API_SECRET:}
+  mail:
+    enabled: ${SMTP_ENABLED:false}
+    from: ${SMTP_FROM:no-reply@opportunityboard.local}
+  scheduler:
+    deadline-reminder-cron: ${DEADLINE_REMINDER_CRON:0 0 8 * * *}
+    weekly-digest-cron: ${WEEKLY_DIGEST_CRON:0 0 9 * * MON}

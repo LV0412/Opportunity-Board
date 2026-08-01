@@ -1,0 +1,2 @@
+ALTER TABLE opportunities
+    ADD COLUMN view_count BIGINT NOT NULL DEFAULT 0;
