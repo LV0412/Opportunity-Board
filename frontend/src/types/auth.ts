@@ -1,5 +1,5 @@
 export type UserRole = "STUDENT" | "ORGANIZATION" | "ADMIN";
-export type UserStatus = "ACTIVE" | "LOCKED" | "DISABLED";
+export type UserStatus = "PENDING_VERIFICATION" | "ACTIVE" | "LOCKED" | "DISABLED";
 
 export type AuthUser = {
   id: string;
@@ -16,6 +16,15 @@ export type AuthResponse = {
   user: AuthUser;
 };
 
+export type RegisterResponse = {
+  accessToken: string | null;
+  tokenType: "Bearer";
+  expiresIn: number;
+  user: AuthUser;
+  verificationRequired: boolean;
+  message: string;
+};
+
 export type LoginRequest = {
   email: string;
   password: string;
@@ -23,7 +32,7 @@ export type LoginRequest = {
 
 export type RegisterRequest = LoginRequest & {
   fullName: string;
-  role: UserRole;
+  role: Exclude<UserRole, "ADMIN">;
   organizationName?: string;
   university?: string;
   major?: string;

@@ -75,3 +75,5 @@ export function PendingOpportunitiesPage() {
     </main>
   );
 }
+
+export default PendingOpportunitiesPage;

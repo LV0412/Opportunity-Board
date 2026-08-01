@@ -113,3 +113,5 @@ export function OrganizationProfilePage() {
     </main>
   );
 }
+
+export default OrganizationProfilePage;

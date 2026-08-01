@@ -5,11 +5,32 @@
 :root {
   --background: 210 40% 98%;
   --foreground: 222 47% 11%;
-  --primary: 188 78% 31%;
+  --primary: 185 100% 22%;
   --primary-foreground: 0 0% 100%;
   --muted: 210 40% 94%;
   --muted-foreground: 215 16% 47%;
   --border: 214 32% 91%;
+  --stitch-surface: #f7f9fb;
+  --stitch-surface-dim: #d8dadc;
+  --stitch-surface-bright: #f7f9fb;
+  --stitch-surface-container-lowest: #ffffff;
+  --stitch-surface-container-low: #f2f4f6;
+  --stitch-surface-container: #eceef0;
+  --stitch-surface-container-high: #e6e8ea;
+  --stitch-surface-container-highest: #e0e3e5;
+  --stitch-on-surface: #191c1e;
+  --stitch-on-surface-variant: #3e494a;
+  --stitch-outline: #6e797a;
+  --stitch-outline-variant: #bdc9ca;
+  --stitch-on-primary: #ffffff;
+  --stitch-primary-container: #11808a;
+  --stitch-on-primary-container: #f2feff;
+  --stitch-secondary: #505f76;
+  --stitch-on-secondary: #ffffff;
+  --stitch-error: #ba1a1a;
+  --stitch-on-error: #ffffff;
+  --stitch-error-container: #ffdad6;
+  --stitch-on-error-container: #93000a;
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
@@ -22,5 +43,29 @@
 body {
   margin: 0;
   min-width: 320px;
+  background: var(--stitch-surface);
+  color: var(--stitch-on-surface);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.font-display-lg,
+.font-headline-lg,
+.font-headline-md,
+.font-headline-sm,
+.font-title-sm {
+  font-family: Inter, Manrope, ui-sans-serif, system-ui, sans-serif;
+}
+
+.font-body-lg,
+.font-body-md,
+.font-body-sm,
+.font-label-md,
+.font-label-sm,
+.font-label-bold {
+  font-family: Inter, "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
 }
 

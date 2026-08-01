@@ -120,3 +120,5 @@ function Pagination({
     </div>
   );
 }
+
+export default ApplicationsPage;

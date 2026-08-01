@@ -34,6 +34,9 @@ class DashboardControllerIntegrationTests {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private TestAuthHelper testAuthHelper;
+
     @Test
     void studentDashboardReturnsStatsRecommendationsAndDeadline() throws Exception {
         String organizationToken = registerAndGetToken("student-dashboard-org@example.com", UserRole.ORGANIZATION);
@@ -186,6 +189,10 @@ class DashboardControllerIntegrationTests {
     }
 
     private String registerAndGetToken(String email, UserRole role) throws Exception {
+        if (role == UserRole.ADMIN) {
+            return testAuthHelper.createAdminToken(email, "Dashboard Admin");
+        }
+
         Map<String, String> body = new HashMap<>();
         body.put("email", email);
         body.put("password", "password123");

@@ -122,3 +122,5 @@ export function SavedOpportunitiesPage() {
     </main>
   );
 }
+
+export default SavedOpportunitiesPage;

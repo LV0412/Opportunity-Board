@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Navigate } from "react-router-dom";
 import { ROUTES } from "../config/routes";
 import { useAuth } from "../features/auth/hooks/useAuth";
 import type { UserRole } from "../types/auth";
@@ -9,17 +10,19 @@ type RoleBasedRouteProps = {
 };
 
 export function RoleBasedRoute({ children, allowedRoles }: RoleBasedRouteProps) {
-  const { user, redirectToRoleDashboard } = useAuth();
+  const { user } = useAuth();
 
   if (!user) {
-    window.history.replaceState({}, "", ROUTES.login);
-    window.dispatchEvent(new PopStateEvent("popstate"));
-    return null;
+    return <Navigate to={ROUTES.login} replace />;
   }
 
   if (!allowedRoles.includes(user.role)) {
-    redirectToRoleDashboard(user.role);
-    return null;
+    const pathByRole: Record<UserRole, string> = {
+      STUDENT: ROUTES.studentDashboard,
+      ORGANIZATION: ROUTES.organizationDashboard,
+      ADMIN: ROUTES.adminDashboard,
+    };
+    return <Navigate to={pathByRole[user.role]} replace />;
   }
 
   return children;

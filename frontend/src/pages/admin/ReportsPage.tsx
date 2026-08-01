@@ -62,3 +62,5 @@ export function ReportsPage() {
     </main>
   );
 }
+
+export default ReportsPage;

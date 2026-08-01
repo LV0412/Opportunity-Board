@@ -113,3 +113,5 @@ export function ProfilePage() {
     </main>
   );
 }
+
+export default ProfilePage;

@@ -27,21 +27,22 @@ public class EmailTemplateService {
             String opportunityTitle,
             ApplicationStatus status
     ) {
-        String subject = "Opportunity Board - Cap nhat trang thai ung tuyen";
+        String subject = "Opportunity Board - Cập nhật trạng thái ứng tuyển";
+        String statusLabel = applicationStatusLabel(status);
         String text = """
-                Xin chao %s,
+                Xin chào %s,
 
-                Ho so ung tuyen cua ban cho co hoi "%s" vua duoc cap nhat sang trang thai %s.
+                Hồ sơ ứng tuyển của bạn cho cơ hội "%s" vừa được cập nhật sang trạng thái %s.
 
-                Ban co the xem chi tiet tai: %s/student/applications
+                Bạn có thể xem chi tiết tại: %s/student/applications
                 """
-                .formatted(recipientName, opportunityTitle, status.name(), frontendUrl);
+                .formatted(recipientName, opportunityTitle, statusLabel, frontendUrl);
         String html = """
-                <p>Xin chao %s,</p>
-                <p>Ho so ung tuyen cua ban cho co hoi <strong>%s</strong> vua duoc cap nhat sang trang thai <strong>%s</strong>.</p>
-                <p><a href="%s/student/applications">Mo trang theo doi ung tuyen</a></p>
+                <p>Xin chào %s,</p>
+                <p>Hồ sơ ứng tuyển của bạn cho cơ hội <strong>%s</strong> vừa được cập nhật sang trạng thái <strong>%s</strong>.</p>
+                <p><a href="%s/student/applications">Mở trang theo dõi ứng tuyển</a></p>
                 """
-                .formatted(escapeHtml(recipientName), escapeHtml(opportunityTitle), status.name(), frontendUrl);
+                .formatted(escapeHtml(recipientName), escapeHtml(opportunityTitle), escapeHtml(statusLabel), frontendUrl);
         return new MailMessage(recipientEmail, subject, html, text);
     }
 
@@ -53,29 +54,29 @@ public class EmailTemplateService {
             String note
     ) {
         String subject = approved
-                ? "Opportunity Board - Co hoi da duoc phe duyet"
-                : "Opportunity Board - Co hoi can dieu chinh";
-        String statusLine = approved ? "da duoc phe duyet" : "da bi tu choi";
-        String noteText = note == null || note.isBlank() ? "" : "\nGhi chu: " + note.trim();
+                ? "Opportunity Board - Cơ hội đã được phê duyệt"
+                : "Opportunity Board - Cơ hội cần điều chỉnh";
+        String statusLine = approved ? "đã được phê duyệt" : "đã bị từ chối";
+        String noteText = note == null || note.isBlank() ? "" : "\nGhi chú: " + note.trim();
         String text = """
-                Xin chao %s,
+                Xin chào %s,
 
-                Co hoi "%s" cua ban %s.%s
+                Cơ hội "%s" của bạn %s.%s
 
-                Quan ly bai dang tai: %s/organization/opportunities
+                Quản lý bài đăng tại: %s/organization/opportunities
                 """
                 .formatted(recipientName, opportunityTitle, statusLine, noteText, frontendUrl);
         String html = """
-                <p>Xin chao %s,</p>
-                <p>Co hoi <strong>%s</strong> cua ban <strong>%s</strong>.</p>
+                <p>Xin chào %s,</p>
+                <p>Cơ hội <strong>%s</strong> của bạn <strong>%s</strong>.</p>
                 %s
-                <p><a href="%s/organization/opportunities">Mo trang quan ly co hoi</a></p>
+                <p><a href="%s/organization/opportunities">Mở trang quản lý cơ hội</a></p>
                 """
                 .formatted(
                         escapeHtml(recipientName),
                         escapeHtml(opportunityTitle),
                         escapeHtml(statusLine),
-                        note == null || note.isBlank() ? "" : "<p>Ghi chu: " + escapeHtml(note.trim()) + "</p>",
+                        note == null || note.isBlank() ? "" : "<p>Ghi chú: " + escapeHtml(note.trim()) + "</p>",
                         frontendUrl
                 );
         return new MailMessage(recipientEmail, subject, html, text);
@@ -87,24 +88,24 @@ public class EmailTemplateService {
             Opportunity opportunity,
             int daysLeft
     ) {
-        String subject = "Opportunity Board - Nhac han dang ky con " + daysLeft + " ngay";
+        String subject = "Opportunity Board - Nhắc hạn đăng ký còn " + daysLeft + " ngày";
         String deadline = opportunity.getDeadlineAt() == null
-                ? "Khong co han"
+                ? "Không có hạn"
                 : DATE_TIME_FORMATTER.format(opportunity.getDeadlineAt().atZone(ZoneId.of("Asia/Ho_Chi_Minh")));
         String text = """
-                Xin chao %s,
+                Xin chào %s,
 
-                Co hoi "%s" se het han sau %d ngay.
-                Han nop: %s
+                Cơ hội "%s" sẽ hết hạn sau %d ngày.
+                Hạn nộp: %s
 
-                Xem chi tiet: %s/opportunities/%s
+                Xem chi tiết: %s/opportunities/%s
                 """
                 .formatted(recipientName, opportunity.getTitle(), daysLeft, deadline, frontendUrl, opportunity.getId());
         String html = """
-                <p>Xin chao %s,</p>
-                <p>Co hoi <strong>%s</strong> se het han sau <strong>%d ngay</strong>.</p>
-                <p>Han nop: %s</p>
-                <p><a href="%s/opportunities/%s">Xem chi tiet co hoi</a></p>
+                <p>Xin chào %s,</p>
+                <p>Cơ hội <strong>%s</strong> sẽ hết hạn sau <strong>%d ngày</strong>.</p>
+                <p>Hạn nộp: %s</p>
+                <p><a href="%s/opportunities/%s">Xem chi tiết cơ hội</a></p>
                 """
                 .formatted(
                         escapeHtml(recipientName),
@@ -122,7 +123,7 @@ public class EmailTemplateService {
             String recipientName,
             List<Opportunity> opportunities
     ) {
-        String subject = "Opportunity Board - Weekly digest co hoi moi";
+        String subject = "Opportunity Board - Tổng hợp cơ hội mới trong tuần";
         String textItems = opportunities.stream()
                 .map(item -> "- " + item.getTitle() + " (" + item.getCategory().getName() + ")")
                 .reduce("", (left, right) -> left + right + "\n");
@@ -132,22 +133,60 @@ public class EmailTemplateService {
                 .reduce("", String::concat);
 
         String text = """
-                Xin chao %s,
+                Xin chào %s,
 
-                Day la danh sach co hoi moi trong tuan nay:
+                Đây là danh sách cơ hội mới trong tuần này:
                 %s
 
-                Kham pha them tai: %s/explore
+                Khám phá thêm tại: %s/explore
                 """
                 .formatted(recipientName, textItems, frontendUrl);
         String html = """
-                <p>Xin chao %s,</p>
-                <p>Day la danh sach co hoi moi trong tuan nay:</p>
+                <p>Xin chào %s,</p>
+                <p>Đây là danh sách cơ hội mới trong tuần này:</p>
                 <ul>%s</ul>
-                <p><a href="%s/explore">Mo trang kham pha</a></p>
+                <p><a href="%s/explore">Mở trang khám phá</a></p>
                 """
                 .formatted(escapeHtml(recipientName), htmlItems, frontendUrl);
         return new MailMessage(recipientEmail, subject, html, text);
+    }
+
+    public MailMessage emailVerification(
+            String recipientEmail,
+            String recipientName,
+            String verificationToken
+    ) {
+        String verificationUrl = frontendUrl + "/verify-email?token=" + verificationToken;
+        String subject = "Opportunity Board - Xác thực email đăng ký";
+        String text = """
+                Xin chào %s,
+
+                Cảm ơn bạn đã đăng ký tài khoản Opportunity Board.
+                Vui lòng xác thực email bằng đường dẫn sau:
+
+                %s
+
+                Đường dẫn này sẽ hết hạn sau 24 giờ.
+                """
+                .formatted(recipientName, verificationUrl);
+        String html = """
+                <p>Xin chào %s,</p>
+                <p>Cảm ơn bạn đã đăng ký tài khoản Opportunity Board.</p>
+                <p>Vui lòng xác thực email để kích hoạt tài khoản.</p>
+                <p><a href="%s">Xác thực email</a></p>
+                <p>Đường dẫn này sẽ hết hạn sau 24 giờ.</p>
+                """
+                .formatted(escapeHtml(recipientName), verificationUrl);
+        return new MailMessage(recipientEmail, subject, html, text);
+    }
+
+    private String applicationStatusLabel(ApplicationStatus status) {
+        return switch (status) {
+            case APPLIED -> "đã ứng tuyển";
+            case REVIEWING -> "đang được xem xét";
+            case ACCEPTED -> "đã được chấp nhận";
+            case REJECTED -> "đã bị từ chối";
+        };
     }
 
     private String escapeHtml(String value) {

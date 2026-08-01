@@ -166,3 +166,5 @@ function EmptyState({ title, description }: { title: string; description: string
     </div>
   );
 }
+
+export default StudentDashboardPage;

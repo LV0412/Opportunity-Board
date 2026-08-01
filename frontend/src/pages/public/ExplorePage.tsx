@@ -134,3 +134,5 @@ export function ExplorePage() {
     </main>
   );
 }
+
+export default ExplorePage;

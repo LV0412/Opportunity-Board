@@ -2,18 +2,22 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { UserPlus } from "lucide-react";
 import { FormErrorSummary } from "../../components/forms/FormErrorSummary";
+import { StatusBanner } from "../../components/common/StatusBanner";
 import { Button } from "../../components/ui/Button";
 import { InputField } from "../../components/ui/InputField";
 import { SelectField } from "../../components/ui/SelectField";
 import { ROUTES } from "../../config/routes";
 import { AuthFormShell } from "../../features/auth/components/AuthFormShell";
 import { useAuth } from "../../features/auth/hooks/useAuth";
-import type { UserRole } from "../../types/auth";
+import type { RegisterRequest } from "../../types/auth";
 import { isEmail, minLengthMessage, requiredMessage } from "../../utils/validators";
+
+type RegisterRole = RegisterRequest["role"];
+const REGISTER_ROLES: RegisterRole[] = ["STUDENT", "ORGANIZATION"];
 
 export function RegisterPage() {
   const { register } = useAuth();
-  const [role, setRole] = useState<UserRole>("STUDENT");
+  const [role, setRole] = useState<RegisterRole>("STUDENT");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,11 +25,18 @@ export function RegisterPage() {
   const [major, setMajor] = useState("");
   const [organizationName, setOrganizationName] = useState("");
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
+    setSuccessMessage("");
+
+    if (!REGISTER_ROLES.includes(role)) {
+      setError("Không thể đăng ký tài khoản admin từ form đăng ký.");
+      return;
+    }
 
     const validationErrors = [
       requiredMessage("Họ tên", fullName),
@@ -44,7 +55,7 @@ export function RegisterPage() {
 
     setIsSubmitting(true);
     try {
-      await register({
+      const message = await register({
         email,
         password,
         fullName,
@@ -53,6 +64,7 @@ export function RegisterPage() {
         university,
         major,
       });
+      setSuccessMessage(message || "Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản.");
     } catch (exception) {
       setError(exception instanceof Error ? exception.message : "Không thể đăng ký");
     } finally {
@@ -61,7 +73,7 @@ export function RegisterPage() {
   }
 
   return (
-    <AuthFormShell title="Đăng ký" subtitle="Tạo tài khoản theo vai trò của bạn trong hệ thống.">
+    <AuthFormShell title="Đăng ký" subtitle="Tạo tài khoản sinh viên hoặc tổ chức. Tài khoản admin chỉ được cấp bởi quản trị viên.">
       <form className="space-y-4" onSubmit={handleSubmit}>
         <InputField label="Họ tên" name="fullName" value={fullName} onChange={(event) => setFullName(event.target.value)} required />
         <InputField
@@ -86,11 +98,10 @@ export function RegisterPage() {
           label="Vai trò"
           name="role"
           value={role}
-          onChange={(event) => setRole(event.target.value as UserRole)}
+          onChange={(event) => setRole(event.target.value as RegisterRole)}
           options={[
             { value: "STUDENT", label: "Sinh viên" },
             { value: "ORGANIZATION", label: "Tổ chức" },
-            { value: "ADMIN", label: "Admin" },
           ]}
         />
         {role === "STUDENT" ? (
@@ -103,6 +114,7 @@ export function RegisterPage() {
           <InputField label="Tên tổ chức" name="organizationName" value={organizationName} onChange={(event) => setOrganizationName(event.target.value)} required />
         ) : null}
         <FormErrorSummary errors={error ? [error] : []} />
+        {successMessage ? <StatusBanner variant="success" message={successMessage} /> : null}
         <Button type="submit" disabled={isSubmitting} fullWidth icon={<UserPlus className="h-4 w-4" aria-hidden="true" />}>
           {isSubmitting ? "Đang tạo tài khoản..." : "Tạo tài khoản"}
         </Button>
@@ -116,3 +128,5 @@ export function RegisterPage() {
     </AuthFormShell>
   );
 }
+
+export default RegisterPage;

@@ -10,6 +10,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
+import java.time.Instant;
+
 @Entity
 @Table(name = "users")
 public class User extends BaseEntity {
@@ -29,6 +31,15 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private UserStatus status = UserStatus.ACTIVE;
+
+    @Column(name = "email_verified_at")
+    private Instant emailVerifiedAt;
+
+    @Column(name = "email_verification_token", length = 120)
+    private String emailVerificationToken;
+
+    @Column(name = "email_verification_token_expires_at")
+    private Instant emailVerificationTokenExpiresAt;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private StudentProfile studentProfile;
@@ -74,6 +85,30 @@ public class User extends BaseEntity {
 
     public void setStatus(UserStatus status) {
         this.status = status;
+    }
+
+    public Instant getEmailVerifiedAt() {
+        return emailVerifiedAt;
+    }
+
+    public void setEmailVerifiedAt(Instant emailVerifiedAt) {
+        this.emailVerifiedAt = emailVerifiedAt;
+    }
+
+    public String getEmailVerificationToken() {
+        return emailVerificationToken;
+    }
+
+    public void setEmailVerificationToken(String emailVerificationToken) {
+        this.emailVerificationToken = emailVerificationToken;
+    }
+
+    public Instant getEmailVerificationTokenExpiresAt() {
+        return emailVerificationTokenExpiresAt;
+    }
+
+    public void setEmailVerificationTokenExpiresAt(Instant emailVerificationTokenExpiresAt) {
+        this.emailVerificationTokenExpiresAt = emailVerificationTokenExpiresAt;
     }
 
     public StudentProfile getStudentProfile() {

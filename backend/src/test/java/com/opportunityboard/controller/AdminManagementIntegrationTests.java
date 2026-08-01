@@ -37,6 +37,9 @@ class AdminManagementIntegrationTests {
     @Autowired
     private AdminAuditLogRepository adminAuditLogRepository;
 
+    @Autowired
+    private TestAuthHelper testAuthHelper;
+
     @Test
     void studentCanReportAndAdminCanResolveReport() throws Exception {
         String organizationToken = registerAndGetToken("report-org@example.com", UserRole.ORGANIZATION);
@@ -198,6 +201,10 @@ class AdminManagementIntegrationTests {
     }
 
     private String registerAndGetToken(String email, UserRole role) throws Exception {
+        if (role == UserRole.ADMIN) {
+            return testAuthHelper.createAdminToken(email, "Admin User");
+        }
+
         Map<String, String> body = new HashMap<>();
         body.put("email", email);
         body.put("password", "password123");

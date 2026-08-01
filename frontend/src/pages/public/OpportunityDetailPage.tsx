@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { ROUTES } from "../../config/routes";
 import { opportunityApi } from "../../features/opportunities/api/opportunityApi";
 import { OpportunityDetail } from "../../features/opportunities/components/OpportunityDetail";
 import type { Opportunity } from "../../types/opportunity";
 
-export function OpportunityDetailPage({ id }: { id: string }) {
+export function OpportunityDetailPage() {
+  const { id = "" } = useParams<{ id: string }>();
   const [opportunity, setOpportunity] = useState<Opportunity | null>(null);
   const [error, setError] = useState("");
 
@@ -26,3 +28,5 @@ export function OpportunityDetailPage({ id }: { id: string }) {
     </main>
   );
 }
+
+export default OpportunityDetailPage;

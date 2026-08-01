@@ -37,6 +37,9 @@ class ApplicationControllerIntegrationTests {
     @Autowired
     private NotificationRepository notificationRepository;
 
+    @Autowired
+    private TestAuthHelper testAuthHelper;
+
     @Test
     void studentAppliesOnceAndTracksStatusUpdateNotification() throws Exception {
         String organizationToken = registerAndGetToken("apply-org@example.com", UserRole.ORGANIZATION);
@@ -196,6 +199,10 @@ class ApplicationControllerIntegrationTests {
     }
 
     private String registerAndGetToken(String email, UserRole role) throws Exception {
+        if (role == UserRole.ADMIN) {
+            return testAuthHelper.createAdminToken(email, "Application Admin");
+        }
+
         return objectMapper.readTree(register(email, role)).get("accessToken").asText();
     }
 

@@ -79,3 +79,5 @@ export function OrganizationOpportunitiesPage() {
     </main>
   );
 }
+
+export default OrganizationOpportunitiesPage;

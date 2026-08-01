@@ -155,3 +155,5 @@ export function ApplicantsPage() {
     </main>
   );
 }
+
+export default ApplicantsPage;

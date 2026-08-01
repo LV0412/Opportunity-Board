@@ -32,6 +32,9 @@ class BookmarkControllerIntegrationTests {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private TestAuthHelper testAuthHelper;
+
     @Test
     void studentCanSaveOnceAndUnsaveOpportunity() throws Exception {
         String organizationToken = registerAndGetToken("bookmark-org@example.com", UserRole.ORGANIZATION);
@@ -132,6 +135,10 @@ class BookmarkControllerIntegrationTests {
     }
 
     private String registerAndGetToken(String email, UserRole role) throws Exception {
+        if (role == UserRole.ADMIN) {
+            return testAuthHelper.createAdminToken(email, "Bookmark Admin");
+        }
+
         Map<String, String> body = new HashMap<>();
         body.put("email", email);
         body.put("password", "password123");

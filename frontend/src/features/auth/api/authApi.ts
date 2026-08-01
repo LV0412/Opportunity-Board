@@ -1,11 +1,16 @@
 import { apiClient } from "../../../config/apiClient";
-import type { AuthResponse, AuthUser, LoginRequest, RegisterRequest } from "../../../types/auth";
+import type { AuthResponse, AuthUser, LoginRequest, RegisterRequest, RegisterResponse } from "../../../types/auth";
 
 export const authApi = {
   register(payload: RegisterRequest) {
-    return apiClient<AuthResponse>("/auth/register", {
+    return apiClient<RegisterResponse>("/auth/register", {
       method: "POST",
       body: JSON.stringify(payload),
+      skipAuth: true,
+    });
+  },
+  verifyEmail(token: string) {
+    return apiClient<AuthUser>(`/auth/verify-email?token=${encodeURIComponent(token)}`, {
       skipAuth: true,
     });
   },

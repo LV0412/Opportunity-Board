@@ -25,5 +25,7 @@ app:
   jwt:
     secret: change-me-to-a-long-random-secret
     expiration-ms: 86400000
+  auth:
+    email-verification-required: false
   mail:
     enabled: false

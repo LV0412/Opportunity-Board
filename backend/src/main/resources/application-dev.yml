@@ -35,12 +35,14 @@ app:
   jwt:
     secret: ${JWT_SECRET:change-me-to-a-long-random-secret}
     expiration-ms: ${JWT_EXPIRATION:86400000}
+  auth:
+    email-verification-required: ${EMAIL_VERIFICATION_REQUIRED:true}
   cloudinary:
     cloud-name: ${CLOUDINARY_CLOUD_NAME:}
     api-key: ${CLOUDINARY_API_KEY:}
     api-secret: ${CLOUDINARY_API_SECRET:}
   mail:
-    enabled: ${SMTP_ENABLED:false}
+    enabled: ${SMTP_ENABLED:true}
     from: ${SMTP_FROM:no-reply@opportunityboard.local}
   scheduler:
     deadline-reminder-cron: ${DEADLINE_REMINDER_CRON:0 0 8 * * *}

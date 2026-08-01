@@ -3,6 +3,7 @@ export const ROUTES = {
   explore: "/explore",
   login: "/login",
   register: "/register",
+  verifyEmail: "/verify-email",
   studentDashboard: "/student/dashboard",
   studentProfile: "/student/profile",
   studentSavedOpportunities: "/student/saved",

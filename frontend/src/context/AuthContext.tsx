@@ -1,5 +1,6 @@
 import { createContext, useCallback, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
 import { clearStoredToken, getStoredToken, setStoredToken } from "../config/apiClient";
 import { ROUTES } from "../config/routes";
 import { authApi } from "../features/auth/api/authApi";
@@ -11,7 +12,7 @@ type AuthContextValue = {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (payload: LoginRequest) => Promise<void>;
-  register: (payload: RegisterRequest) => Promise<void>;
+  register: (payload: RegisterRequest) => Promise<string>;
   logout: () => void;
   redirectToRoleDashboard: (role?: UserRole) => void;
 };
@@ -23,6 +24,7 @@ type AuthProviderProps = {
 };
 
 export function AuthProvider({ children }: AuthProviderProps) {
+  const navigate = useNavigate();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [token, setToken] = useState<string | null>(() => getStoredToken());
   const [isLoading, setIsLoading] = useState(true);
@@ -51,9 +53,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       ORGANIZATION: ROUTES.organizationDashboard,
       ADMIN: ROUTES.adminDashboard,
     };
-    window.history.pushState({}, "", nextRole ? pathByRole[nextRole] : ROUTES.home);
-    window.dispatchEvent(new PopStateEvent("popstate"));
-  }, [user?.role]);
+    navigate(nextRole ? pathByRole[nextRole] : ROUTES.home);
+  }, [navigate, user?.role]);
 
   const applyAuthResponse = useCallback((accessToken: string, nextUser: AuthUser) => {
     setStoredToken(accessToken);
@@ -69,16 +70,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const register = useCallback(async (payload: RegisterRequest) => {
     const response = await authApi.register(payload);
-    applyAuthResponse(response.accessToken, response.user);
+    if (response.accessToken) {
+      applyAuthResponse(response.accessToken, response.user);
+    }
+    return response.message;
   }, [applyAuthResponse]);
 
   const logout = useCallback(() => {
     clearStoredToken();
     setToken(null);
     setUser(null);
-    window.history.pushState({}, "", ROUTES.login);
-    window.dispatchEvent(new PopStateEvent("popstate"));
-  }, []);
+    navigate(ROUTES.login);
+  }, [navigate]);
 
   const value = useMemo<AuthContextValue>(() => ({
     user,

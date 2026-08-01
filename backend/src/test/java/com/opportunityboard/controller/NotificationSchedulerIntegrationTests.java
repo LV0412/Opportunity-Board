@@ -41,6 +41,9 @@ class NotificationSchedulerIntegrationTests {
     @Autowired
     private NotificationRepository notificationRepository;
 
+    @Autowired
+    private TestAuthHelper testAuthHelper;
+
     @Test
     void deadlineReminderIsNotSentTwiceForSameUserAndOpportunity() throws Exception {
         String organizationToken = registerAndGetToken("reminder-org@example.com", UserRole.ORGANIZATION);
@@ -146,6 +149,10 @@ class NotificationSchedulerIntegrationTests {
     }
 
     private String registerAndGetToken(String email, UserRole role) throws Exception {
+        if (role == UserRole.ADMIN) {
+            return testAuthHelper.createAdminToken(email, "Notification Admin");
+        }
+
         Map<String, String> body = new HashMap<>();
         body.put("email", email);
         body.put("password", "password123");

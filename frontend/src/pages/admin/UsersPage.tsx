@@ -60,3 +60,5 @@ export function UsersPage() {
     </main>
   );
 }
+
+export default UsersPage;

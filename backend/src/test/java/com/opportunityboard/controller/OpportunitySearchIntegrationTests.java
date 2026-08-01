@@ -34,6 +34,9 @@ class OpportunitySearchIntegrationTests {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private TestAuthHelper testAuthHelper;
+
     @Test
     void searchesApprovedOpportunitiesWithCombinedFilters() throws Exception {
         String organizationToken = registerAndGetToken("search-org@example.com", UserRole.ORGANIZATION);
@@ -175,6 +178,10 @@ class OpportunitySearchIntegrationTests {
     }
 
     private String registerAndGetToken(String email, UserRole role) throws Exception {
+        if (role == UserRole.ADMIN) {
+            return testAuthHelper.createAdminToken(email, "Search Admin");
+        }
+
         Map<String, String> body = new HashMap<>();
         body.put("email", email);
         body.put("password", "password123");
