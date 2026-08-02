@@ -8,6 +8,11 @@
 !backend/**
 !frontend/
 !frontend/**
+!.agents/
+!.agents/skills/
+!.agents/skills/**
+!.codex/
+!.codex/**
 
 # Dependencies
 **/node_modules/
