@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { Save } from "lucide-react";
+import { ChevronDown, Save } from "lucide-react";
 import { useEffect } from "react";
 import { adminApi } from "../../admin/api/adminApi";
 import { FormErrorSummary } from "../../../components/forms/FormErrorSummary";
@@ -20,6 +20,7 @@ type OpportunityFormProps = {
 export function OpportunityForm({ initialValue, onSubmit }: OpportunityFormProps) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
+  const [selectedTagNames, setSelectedTagNames] = useState<string[]>(initialValue?.tags ?? []);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -34,6 +35,10 @@ export function OpportunityForm({ initialValue, onSubmit }: OpportunityFormProps
         setTags([]);
       });
   }, []);
+
+  useEffect(() => {
+    setSelectedTagNames(initialValue?.tags ?? []);
+  }, [initialValue]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -72,6 +77,7 @@ export function OpportunityForm({ initialValue, onSubmit }: OpportunityFormProps
         tags: selectedTags,
       });
       formElement.reset();
+      setSelectedTagNames([]);
     } catch (exception) {
       setError(exception instanceof Error ? exception.message : "Không thể lưu cơ hội");
     } finally {
@@ -92,12 +98,38 @@ export function OpportunityForm({ initialValue, onSubmit }: OpportunityFormProps
         <InputField label="Địa điểm" name="location" defaultValue={initialValue?.location ?? ""} />
         <InputField label="Link ứng tuyển" name="applyUrl" type="url" defaultValue={initialValue?.applyUrl ?? ""} hint="Dùng link form, ATS hoặc website chính thức." />
         <InputField label="Deadline" name="deadlineAt" type="datetime-local" defaultValue={toDateTimeLocal(initialValue?.deadlineAt)} />
-        <label className="block text-sm font-medium">
-          Thẻ
-          <select className="mt-2 min-h-28 w-full rounded-md border border-border bg-white px-3 py-2 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20" name="tags" multiple defaultValue={initialValue?.tags ?? []}>
-            {tags.map((tag) => <option key={tag.id} value={tag.name}>{tag.name}</option>)}
-          </select>
-        </label>
+        <div className="block text-sm font-medium">
+          <span id="opportunity-tags-label">Thẻ</span>
+          <details className="group relative mt-2">
+            <summary
+              className="flex min-h-10 cursor-pointer list-none items-center justify-between gap-3 rounded-md border border-border bg-white px-3 py-2 font-normal outline-none transition hover:border-primary focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 [&::-webkit-details-marker]:hidden"
+              aria-labelledby="opportunity-tags-label"
+            >
+              <span className="min-w-0 truncate">{tagSelectionLabel(selectedTagNames)}</span>
+              <ChevronDown className="h-4 w-4 shrink-0 transition-transform group-open:rotate-180" aria-hidden="true" />
+            </summary>
+            <div className="absolute z-20 mt-1 max-h-56 w-full overflow-y-auto rounded-md border border-border bg-white p-1 shadow-md">
+              {tags.map((tag) => (
+                <label className="flex cursor-pointer items-center gap-2 rounded px-2 py-2 font-normal hover:bg-muted" key={tag.id}>
+                  <input
+                    className="h-4 w-4 accent-primary"
+                    type="checkbox"
+                    name="tags"
+                    value={tag.name}
+                    checked={selectedTagNames.includes(tag.name)}
+                    onChange={(event) => {
+                      setSelectedTagNames((current) => event.target.checked
+                        ? [...current, tag.name]
+                        : current.filter((name) => name !== tag.name));
+                    }}
+                  />
+                  <span>{tag.name}</span>
+                </label>
+              ))}
+              {!tags.length ? <p className="px-2 py-3 font-normal text-muted-foreground">Chưa có thẻ khả dụng</p> : null}
+            </div>
+          </details>
+        </div>
       </div>
       <label className="mt-4 flex items-center gap-2 text-sm font-medium">
         <input className="h-4 w-4 accent-primary" name="remote" type="checkbox" defaultChecked={initialValue?.remote ?? false} />
@@ -118,4 +150,11 @@ function toDateTimeLocal(value?: string | null) {
     return "";
   }
   return new Date(value).toISOString().slice(0, 16);
+}
+
+function tagSelectionLabel(selectedTags: string[]) {
+  if (!selectedTags.length) {
+    return "Chọn thẻ";
+  }
+  return selectedTags.length === 1 ? selectedTags[0] : `${selectedTags.length} thẻ đã chọn`;
 }
