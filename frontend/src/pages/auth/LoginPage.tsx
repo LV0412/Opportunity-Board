@@ -8,7 +8,7 @@ import { InputField } from "../../components/ui/InputField";
 import { ROUTES } from "../../config/routes";
 import { AuthFormShell } from "../../features/auth/components/AuthFormShell";
 import { useAuth } from "../../features/auth/hooks/useAuth";
-import { isEmail, requiredMessage } from "../../utils/validators";
+import { emailTypoMessage, isEmail, normalizeEmail, requiredMessage } from "../../utils/validators";
 
 export function LoginPage() {
   const { login } = useAuth();
@@ -23,10 +23,14 @@ export function LoginPage() {
     event.preventDefault();
     setError("");
 
+    const normalizedEmail = normalizeEmail(email);
+    const typoError = emailTypoMessage(normalizedEmail);
+
     const validationErrors = [
-      requiredMessage("Email", email),
+      requiredMessage("Email", normalizedEmail),
       requiredMessage("Mật khẩu", password),
-      email && !isEmail(email) ? "Email không đúng định dạng." : "",
+      typoError,
+      normalizedEmail && !isEmail(normalizedEmail) ? "Email không đúng định dạng." : "",
     ].filter(Boolean);
 
     if (validationErrors.length) {
@@ -36,13 +40,17 @@ export function LoginPage() {
 
     setIsSubmitting(true);
     try {
-      await login({ email, password });
+      setEmail(normalizedEmail);
+      await login({ email: normalizedEmail, password });
       const requestedPath = (location.state as { from?: string } | null)?.from;
       if (requestedPath?.startsWith("/")) {
         navigate(requestedPath, { replace: true });
       }
     } catch (exception) {
-      setError(exception instanceof Error ? exception.message : "Không thể đăng nhập");
+      const message = exception instanceof Error ? exception.message : "Không thể đăng nhập";
+      setError(message === "Please verify your email before logging in"
+        ? "Tài khoản chưa được kích hoạt. Vui lòng mở email xác thực đã được gửi khi đăng ký."
+        : message);
     } finally {
       setIsSubmitting(false);
     }
@@ -56,8 +64,9 @@ export function LoginPage() {
           type="email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
+          onBlur={() => setEmail(normalizeEmail(email))}
           autoComplete="email"
-          error={email && !isEmail(email) ? "Email không đúng định dạng." : undefined}
+          error={emailTypoMessage(email) || (email && !isEmail(email) ? "Email không đúng định dạng." : undefined)}
           required
         />
         <InputField

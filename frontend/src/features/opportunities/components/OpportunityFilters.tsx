@@ -39,13 +39,13 @@ export function OpportunityFilters({ value, onChange, onSubmit, onReset }: Props
 
   return (
     <form
-      className="rounded-md border border-border bg-white p-4 shadow-sm"
+      className="opportunity-filters"
       onSubmit={(event) => {
         event.preventDefault();
         onSubmit();
       }}
     >
-      <div className="grid gap-3 lg:grid-cols-[1.4fr_1fr_1fr_auto]">
+      <div className="filter-primary-row">
         <label className="block">
           <span className="text-sm font-semibold">Từ khóa</span>
           <div className="mt-2 flex items-center gap-2 rounded-md border border-border bg-background px-3">
@@ -103,7 +103,7 @@ export function OpportunityFilters({ value, onChange, onSubmit, onReset }: Props
         </div>
       </div>
 
-      <div className="mt-4 grid gap-3 md:grid-cols-4">
+      <div className="filter-secondary-row">
         <label className="block">
           <span className="text-sm font-semibold">Địa điểm</span>
           <input

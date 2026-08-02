@@ -16,7 +16,7 @@ export function TextareaField({ label, error, hint, rightSlot, className = "", i
       <div className="relative mt-2">
         <textarea
           id={textareaId}
-          className={`min-h-24 w-full rounded-md border px-3 py-2 outline-none transition ${
+          className={`modern-input min-h-24 w-full rounded-md border px-3 py-2 outline-none transition ${
             error
               ? "border-red-300 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-100"
               : "border-border bg-white focus:border-primary focus:ring-2 focus:ring-primary/20"

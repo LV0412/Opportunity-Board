@@ -16,7 +16,7 @@ export function InputField({ label, error, hint, rightSlot, className = "", id, 
       <div className="relative mt-2">
         <input
           id={inputId}
-          className={`w-full rounded-md border px-3 py-2 outline-none transition ${
+          className={`modern-input w-full rounded-md border px-3 py-2 outline-none transition ${
             error
               ? "border-red-300 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-100"
               : "border-border bg-white focus:border-primary focus:ring-2 focus:ring-primary/20"

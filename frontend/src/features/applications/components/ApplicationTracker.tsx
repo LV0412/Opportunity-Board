@@ -19,7 +19,7 @@ export function ApplicationTracker({ application }: { application: ApplicationIt
   const rejected = application.status === "REJECTED";
 
   return (
-    <article className="rounded-md border border-border bg-white p-5 shadow-sm">
+    <article className="application-tracker-card">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-sm font-semibold text-primary">{application.opportunityCategoryName}</p>

@@ -1,4 +1,4 @@
-import { Bell, Bookmark, CalendarClock, FileText, Search } from "lucide-react";
+import { ArrowRight, Bell, Bookmark, CalendarClock, FileText, Search, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ROUTES } from "../../config/routes";
 import { useAuth } from "../../features/auth/hooks/useAuth";
@@ -19,7 +19,7 @@ export function StudentDashboardPage() {
     dashboardApi.getStudentDashboard()
       .then(setDashboard)
       .catch((exception) => {
-        setError(exception instanceof Error ? exception.message : "Khong the tai dashboard");
+        setError(exception instanceof Error ? exception.message : "Không thể tải tổng quan");
         setDashboard(null);
       })
       .finally(() => setLoading(false));
@@ -28,108 +28,70 @@ export function StudentDashboardPage() {
   return (
     <DashboardLayout
       role="STUDENT"
-      title="Student Dashboard"
-      subtitle={`Xin chao, ${user?.fullName ?? ""}`}
+      title="Tổng quan của bạn"
+      subtitle={`Chào ${user?.fullName ?? "bạn"}, cùng xem những cơ hội đáng chú ý hôm nay.`}
       onLogout={logout}
-      actions={(
-        <a className="rounded-md bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground" href={ROUTES.studentProfile}>
-          Cập nhật hồ sơ
-        </a>
-      )}
-      secondary={<NotificationPanel title="Thông báo của bạn" />}
+      actions={<a className="dashboard-primary-action" href={ROUTES.studentProfile}>Cập nhật hồ sơ <ArrowRight aria-hidden="true" /></a>}
+      secondary={<NotificationPanel title="Thông báo" pageSize={4} />}
     >
-      {error ? <p className="rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p> : null}
+      {error ? <p className="dashboard-error">{error}</p> : null}
 
       {loading ? (
-        <div className="grid gap-4 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, index) => (
-            <div key={index} className="h-32 animate-pulse rounded-md border border-border bg-white" />
-          ))}
+        <div className="student-dashboard-loading" aria-label="Đang tải dữ liệu">
+          {Array.from({ length: 6 }).map((_, index) => <div key={index} />)}
         </div>
       ) : null}
 
       {dashboard ? (
-        <div className="space-y-6">
-          <div className="grid overflow-hidden rounded-md border border-outline-variant bg-white sm:grid-cols-2 xl:grid-cols-4 xl:divide-x xl:divide-outline-variant">
-            <MetricCard icon={Search} label="Cơ hội đề xuất" value={dashboard.recommendedOpportunities.length} hint="Gợi ý theo hồ sơ của bạn" />
-            <MetricCard icon={Bookmark} label="Đã lưu" value={dashboard.savedCount} hint="Cơ hội bạn đã bookmark" />
-            <MetricCard icon={FileText} label="Ứng tuyển" value={dashboard.applicationCount} hint="Hồ sơ đã nộp trong hệ thống" />
-            <MetricCard icon={Bell} label="Chưa đọc" value={dashboard.unreadNotificationCount} hint="Thông báo mới đang chờ" />
-          </div>
-
-          <div className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_320px]">
-            <section className="rounded-md border border-border bg-white p-5 shadow-sm">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <h2 className="text-lg font-semibold">Cơ hội đề xuất</h2>
-                  <p className="mt-1 text-sm text-muted-foreground">Rule-based theo major, interests và skills của bạn.</p>
-                </div>
-                <a className="text-sm font-semibold text-primary" href={ROUTES.explore}>Xem tất cả</a>
-              </div>
-              {dashboard.recommendedOpportunities.length ? (
-                <div className="mt-5 grid gap-4 lg:grid-cols-2">
-                  {dashboard.recommendedOpportunities.map((opportunity) => (
-                    <OpportunityCard key={opportunity.id} opportunity={opportunity} />
-                  ))}
-                </div>
-              ) : (
-                <EmptyState title="Chưa có gợi ý phù hợp" description="Cập nhật hồ sơ học tập và kỹ năng để nhận đề xuất tốt hơn." />
-              )}
-            </section>
-
-            <section className="rounded-md border border-border bg-white p-5 shadow-sm">
-              <div className="flex items-start gap-3">
-                <span className="grid h-11 w-11 place-items-center rounded-md bg-primary/10 text-primary">
-                  <CalendarClock className="h-5 w-5" aria-hidden="true" />
-                </span>
-                <div>
-                  <h2 className="text-lg font-semibold">Deadline gần nhất</h2>
-                  <p className="mt-1 text-sm text-muted-foreground">Mốc thời gian quan trọng cần ưu tiên tiếp theo.</p>
-                </div>
-              </div>
-              {dashboard.nearestDeadline ? (
-                <div className="mt-5 rounded-md border border-border bg-background p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-primary">
-                    {dashboard.nearestDeadline.source === "APPLICATION" ? "Từ hồ sơ ứng tuyển" : "Từ danh sách đã lưu"}
-                  </p>
-                  <a className="mt-2 block font-semibold text-foreground hover:text-primary" href={`${ROUTES.opportunityDetail}/${dashboard.nearestDeadline.opportunityId}`}>
-                    {dashboard.nearestDeadline.opportunityTitle}
-                  </a>
-                  <p className="mt-2 text-sm text-muted-foreground">{dashboard.nearestDeadline.organizationName}</p>
-                  <p className="mt-3 text-sm font-semibold">
-                    {new Date(dashboard.nearestDeadline.deadlineAt).toLocaleString("vi-VN")}
-                  </p>
-                </div>
-              ) : (
-                <EmptyState title="Chưa có deadline sắp tới" description="Hãy lưu hoặc ứng tuyển cơ hội để theo dõi mốc quan trọng tại đây." />
-              )}
-            </section>
-          </div>
-
-          <section className="rounded-md border border-border bg-white p-5 shadow-sm">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <h2 className="text-lg font-semibold">Ứng tuyển gần đây</h2>
-                <p className="mt-1 text-sm text-muted-foreground">Các cập nhật mới nhất từ tổ chức tuyển dụng.</p>
-              </div>
-              <a className="text-sm font-semibold text-primary" href={ROUTES.studentApplications}>Mở tracker</a>
+        <div className="student-dashboard">
+          <section className="student-welcome-card">
+            <div>
+              <span><Sparkles aria-hidden="true" /> Gợi ý dành riêng cho bạn</span>
+              <h2>{dashboard.recommendedOpportunities.length} cơ hội đang chờ bạn khám phá</h2>
+              <p>Hồ sơ càng đầy đủ, đề xuất càng sát với kỹ năng và định hướng của bạn.</p>
             </div>
+            <a href={ROUTES.explore}>Khám phá ngay <ArrowRight aria-hidden="true" /></a>
+          </section>
+
+          <div className="student-metrics">
+            <MetricCard icon={Search} label="Đề xuất" value={dashboard.recommendedOpportunities.length} hint="Phù hợp với hồ sơ" tone="teal" />
+            <MetricCard icon={Bookmark} label="Đã lưu" value={dashboard.savedCount} hint="Cơ hội quan tâm" tone="gold" />
+            <MetricCard icon={FileText} label="Ứng tuyển" value={dashboard.applicationCount} hint="Hồ sơ đã gửi" tone="coral" />
+            <MetricCard icon={Bell} label="Chưa đọc" value={dashboard.unreadNotificationCount} hint="Thông báo mới" tone="violet" />
+          </div>
+
+          <div className="student-focus-grid">
+            <section className="student-section student-opportunities">
+              <SectionHeader title="Cơ hội nổi bật" description="Được chọn dựa trên chuyên ngành, kỹ năng và sở thích của bạn." href={ROUTES.explore} action="Xem tất cả" />
+              {dashboard.recommendedOpportunities.length ? (
+                <div className="student-opportunity-grid">
+                  {dashboard.recommendedOpportunities.slice(0, 4).map((opportunity) => <OpportunityCard key={opportunity.id} opportunity={opportunity} />)}
+                </div>
+              ) : <EmptyState title="Chưa có gợi ý phù hợp" description="Cập nhật hồ sơ học tập và kỹ năng để nhận đề xuất tốt hơn." />}
+            </section>
+
+            <section className="student-section student-deadline-card">
+              <div className="student-deadline-heading"><span><CalendarClock aria-hidden="true" /></span><div><small>ƯU TIÊN TIẾP THEO</small><h2>Deadline gần nhất</h2></div></div>
+              {dashboard.nearestDeadline ? (
+                <div className="student-deadline-content">
+                  <span>{dashboard.nearestDeadline.source === "APPLICATION" ? "Đã ứng tuyển" : "Đã lưu"}</span>
+                  <a href={`${ROUTES.opportunityDetail}/${dashboard.nearestDeadline.opportunityId}`}>{dashboard.nearestDeadline.opportunityTitle}</a>
+                  <p>{dashboard.nearestDeadline.organizationName}</p>
+                  <time>{new Date(dashboard.nearestDeadline.deadlineAt).toLocaleString("vi-VN")}</time>
+                </div>
+              ) : <EmptyState title="Chưa có deadline" description="Lưu hoặc ứng tuyển một cơ hội để theo dõi tại đây." />}
+            </section>
+          </div>
+
+          <section className="student-section student-applications">
+            <SectionHeader title="Ứng tuyển gần đây" description="Theo dõi những cập nhật mới nhất trong hành trình của bạn." href={ROUTES.studentApplications} action="Mở trình theo dõi" />
             {dashboard.recentApplications.length ? (
-              <div className="mt-5 grid gap-3 md:grid-cols-3">
+              <div className="student-application-list">
                 {dashboard.recentApplications.map((application) => (
-                  <article key={application.id} className="rounded-md border border-border bg-background p-4">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-primary">{application.status}</p>
-                    <h3 className="mt-2 font-semibold">{application.opportunityTitle}</h3>
-                    <p className="mt-2 text-sm text-muted-foreground">{application.organizationName}</p>
-                    <p className="mt-3 text-sm text-muted-foreground">
-                      Cập nhật {new Date(application.updatedAt).toLocaleDateString("vi-VN")}
-                    </p>
-                  </article>
+                  <article key={application.id}><span>{application.status}</span><div><h3>{application.opportunityTitle}</h3><p>{application.organizationName}</p></div><time>Cập nhật {new Date(application.updatedAt).toLocaleDateString("vi-VN")}</time></article>
                 ))}
               </div>
-            ) : (
-              <EmptyState title="Chưa có hồ sơ ứng tuyển" description="Ứng tuyển từ trang chi tiết cơ hội để bắt đầu theo dõi trạng thái." />
-            )}
+            ) : <EmptyState title="Chưa có hồ sơ ứng tuyển" description="Ứng tuyển từ trang chi tiết cơ hội để bắt đầu theo dõi trạng thái." />}
           </section>
         </div>
       ) : null}
@@ -137,34 +99,16 @@ export function StudentDashboardPage() {
   );
 }
 
-function MetricCard({
-  icon: Icon,
-  label,
-  value,
-  hint,
-}: {
-  icon: typeof Search;
-  label: string;
-  value: number;
-  hint: string;
-}) {
-  return (
-    <article className="border-b border-outline-variant bg-white p-5 last:border-b-0 xl:border-b-0">
-      <Icon className="h-5 w-5 text-primary" aria-hidden="true" />
-      <p className="mt-4 text-sm font-semibold text-muted-foreground">{label}</p>
-      <p className="mt-2 text-3xl font-bold">{value}</p>
-      <p className="mt-2 text-sm text-muted-foreground">{hint}</p>
-    </article>
-  );
+function MetricCard({ icon: Icon, label, value, hint, tone }: { icon: typeof Search; label: string; value: number; hint: string; tone: string }) {
+  return <article className={`student-metric student-metric-${tone}`}><span><Icon aria-hidden="true" /></span><div><small>{label}</small><strong>{value}</strong><p>{hint}</p></div></article>;
+}
+
+function SectionHeader({ title, description, href, action }: { title: string; description: string; href: string; action: string }) {
+  return <header className="student-section-header"><div><h2>{title}</h2><p>{description}</p></div><a href={href}>{action} <ArrowRight aria-hidden="true" /></a></header>;
 }
 
 function EmptyState({ title, description }: { title: string; description: string }) {
-  return (
-    <div className="mt-5 rounded-md border border-dashed border-border px-4 py-8 text-center">
-      <h3 className="font-semibold">{title}</h3>
-      <p className="mt-2 text-sm text-muted-foreground">{description}</p>
-    </div>
-  );
+  return <div className="student-empty"><Sparkles aria-hidden="true" /><h3>{title}</h3><p>{description}</p></div>;
 }
 
 export default StudentDashboardPage;

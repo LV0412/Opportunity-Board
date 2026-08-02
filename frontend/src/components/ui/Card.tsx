@@ -8,7 +8,7 @@ type CardProps = HTMLAttributes<HTMLDivElement> & {
 
 export function Card({ title, description, actions, className = "", children, ...props }: CardProps) {
   return (
-    <section className={`rounded-md border border-border bg-white p-5 shadow-sm ${className}`.trim()} {...props}>
+    <section className={`app-card rounded-md border border-border bg-white p-5 shadow-sm ${className}`.trim()} {...props}>
       {title || description || actions ? (
         <div className="flex items-start justify-between gap-3">
           <div>
