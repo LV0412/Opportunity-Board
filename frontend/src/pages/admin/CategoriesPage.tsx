@@ -2,8 +2,11 @@ import { useEffect, useState } from "react";
 import { ROUTES } from "../../config/routes";
 import { adminApi } from "../../features/admin/api/adminApi";
 import type { Category, Tag } from "../../types/admin";
+import { useAuth } from "../../features/auth/hooks/useAuth";
+import { AdminLayout } from "../../layouts/AdminLayout";
 
 export function CategoriesPage() {
+  const { logout } = useAuth();
   const [categories, setCategories] = useState<Category[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
   const [error, setError] = useState("");
@@ -66,8 +69,8 @@ export function CategoriesPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      <section className="mx-auto max-w-6xl px-6 py-10">
+    <AdminLayout title="Danh mục và thẻ" subtitle="Quản lý dữ liệu phân loại dùng trong cơ hội và bộ lọc." onLogout={logout}>
+      <section className="admin-page-body">
         <a className="text-sm font-semibold text-primary" href={ROUTES.adminDashboard}>Về dashboard</a>
         <h1 className="mt-4 text-3xl font-bold">Quản lý danh mục và thẻ</h1>
         <p className="mt-2 text-muted-foreground">Dữ liệu phân loại dùng trong biểu mẫu tạo cơ hội và bộ lọc khám phá.</p>
@@ -132,7 +135,7 @@ export function CategoriesPage() {
           </section>
         </div>
       </section>
-    </main>
+    </AdminLayout>
   );
 }
 

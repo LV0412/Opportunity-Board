@@ -3,10 +3,13 @@ import { ROUTES } from "../../config/routes";
 import { adminApi } from "../../features/admin/api/adminApi";
 import type { UserStatus } from "../../types/auth";
 import type { AdminUser } from "../../types/admin";
+import { useAuth } from "../../features/auth/hooks/useAuth";
+import { AdminLayout } from "../../layouts/AdminLayout";
 
 const statuses: UserStatus[] = ["ACTIVE", "LOCKED", "DISABLED"];
 
 export function UsersPage() {
+  const { logout } = useAuth();
   const [items, setItems] = useState<AdminUser[]>([]);
   const [error, setError] = useState("");
 
@@ -22,8 +25,8 @@ export function UsersPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      <section className="mx-auto max-w-6xl px-6 py-10">
+    <AdminLayout title="Quản lý người dùng" subtitle="Theo dõi vai trò và trạng thái tài khoản trong hệ thống." onLogout={logout}>
+      <section className="admin-page-body">
         <a className="text-sm font-semibold text-primary" href={ROUTES.adminDashboard}>Về dashboard</a>
         <h1 className="mt-4 text-3xl font-bold">Quản lý người dùng</h1>
         <p className="mt-2 text-muted-foreground">Khóa, mở khóa hoặc vô hiệu hóa tài khoản khi cần.</p>
@@ -57,7 +60,7 @@ export function UsersPage() {
           {!items.length ? <p className="p-5 text-sm text-muted-foreground">Chưa có người dùng.</p> : null}
         </div>
       </section>
-    </main>
+    </AdminLayout>
   );
 }
 

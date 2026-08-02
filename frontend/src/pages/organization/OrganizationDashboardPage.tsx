@@ -27,7 +27,7 @@ export function OrganizationDashboardPage() {
   return (
     <DashboardLayout
       role="ORGANIZATION"
-      title="Organization Dashboard"
+      title="Tổng quan tổ chức"
       subtitle={`Xin chào, ${user?.fullName ?? ""}`}
       onLogout={logout}
       actions={(
@@ -56,7 +56,7 @@ export function OrganizationDashboardPage() {
       ) : null}
 
       {dashboard ? (
-        <div className="space-y-6">
+        <div className="space-y-6 organization-dashboard">
           <div className="grid overflow-hidden rounded-md border border-outline-variant bg-white sm:grid-cols-2 xl:grid-cols-3 xl:divide-x xl:divide-outline-variant">
             <MetricCard icon={PlusCircle} label="Bài đăng" value={dashboard.totalOpportunities} hint="Tổng cơ hội đã tạo" />
             <MetricCard icon={ClipboardCheck} label="Chờ duyệt" value={dashboard.pendingOpportunities} hint="Đang chờ admin review" />

@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { ROUTES } from "../../config/routes";
 import { adminApi } from "../../features/admin/api/adminApi";
 import type { AdminReport, AdminReportStatus } from "../../types/admin";
+import { useAuth } from "../../features/auth/hooks/useAuth";
+import { AdminLayout } from "../../layouts/AdminLayout";
 
 const statuses: Array<{ value: AdminReportStatus; label: string }> = [
   { value: "PENDING", label: "Chờ xử lý" },
@@ -10,6 +12,7 @@ const statuses: Array<{ value: AdminReportStatus; label: string }> = [
 ];
 
 export function ReportsPage() {
+  const { logout } = useAuth();
   const [items, setItems] = useState<AdminReport[]>([]);
   const [error, setError] = useState("");
 
@@ -25,8 +28,8 @@ export function ReportsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      <section className="mx-auto max-w-6xl px-6 py-10">
+    <AdminLayout title="Quản lý báo cáo" subtitle="Đánh giá phản hồi từ người dùng và cập nhật kết quả xử lý." onLogout={logout}>
+      <section className="admin-page-body">
         <a className="text-sm font-semibold text-primary" href={ROUTES.adminDashboard}>Về dashboard</a>
         <h1 className="mt-4 text-3xl font-bold">Xử lý reports</h1>
         <p className="mt-2 text-muted-foreground">Kiểm tra các báo cáo từ sinh viên và cập nhật trạng thái xử lý.</p>
@@ -59,7 +62,7 @@ export function ReportsPage() {
           {!items.length ? <p className="rounded-md border border-border bg-white p-5 text-sm text-muted-foreground">Chưa có report nào.</p> : null}
         </div>
       </section>
-    </main>
+    </AdminLayout>
   );
 }
 

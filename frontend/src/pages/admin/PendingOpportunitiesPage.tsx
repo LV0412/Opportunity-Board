@@ -3,8 +3,11 @@ import { CheckCircle, XCircle } from "lucide-react";
 import { ROUTES } from "../../config/routes";
 import { opportunityApi } from "../../features/opportunities/api/opportunityApi";
 import type { Opportunity } from "../../types/opportunity";
+import { useAuth } from "../../features/auth/hooks/useAuth";
+import { AdminLayout } from "../../layouts/AdminLayout";
 
 export function PendingOpportunitiesPage() {
+  const { logout } = useAuth();
   const [items, setItems] = useState<Opportunity[]>([]);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -44,8 +47,8 @@ export function PendingOpportunitiesPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      <section className="mx-auto max-w-6xl px-6 py-10">
+    <AdminLayout title="Cơ hội chờ duyệt" subtitle="Kiểm tra chất lượng bài đăng trước khi hiển thị công khai." onLogout={logout}>
+      <section className="admin-page-body">
         <a className="text-sm font-semibold text-primary" href={ROUTES.adminDashboard}>Về dashboard</a>
         <h1 className="mt-4 text-3xl font-bold">Cơ hội chờ duyệt</h1>
         <p className="mt-2 text-muted-foreground">Duyệt hoặc từ chối bài đăng trước khi hiển thị công khai.</p>
@@ -77,7 +80,7 @@ export function PendingOpportunitiesPage() {
           {!items.length ? <p className="rounded-md border border-border bg-white p-5 text-sm text-muted-foreground">Không có bài chờ duyệt.</p> : null}
         </div>
       </section>
-    </main>
+    </AdminLayout>
   );
 }
 

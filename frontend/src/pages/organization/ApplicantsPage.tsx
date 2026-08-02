@@ -7,6 +7,8 @@ import { ROUTES } from "../../config/routes";
 import { applicationApi } from "../../features/applications/api/applicationApi";
 import type { ApplicationItem, ApplicationStatus } from "../../types/application";
 import type { PageResponse } from "../../types/opportunity";
+import { useAuth } from "../../features/auth/hooks/useAuth";
+import { DashboardLayout } from "../../layouts/DashboardLayout";
 
 const statuses: Array<{ value: ApplicationStatus; label: string }> = [
   { value: "APPLIED", label: "Đã nộp" },
@@ -16,6 +18,7 @@ const statuses: Array<{ value: ApplicationStatus; label: string }> = [
 ];
 
 export function ApplicantsPage() {
+  const { logout } = useAuth();
   const [page, setPage] = useState(0);
   const [result, setResult] = useState<PageResponse<ApplicationItem> | null>(null);
   const [loading, setLoading] = useState(true);
@@ -83,8 +86,8 @@ export function ApplicantsPage() {
   const totalPages = result?.totalPages ?? 0;
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      <section className="mx-auto max-w-6xl px-6 py-10">
+    <DashboardLayout role="ORGANIZATION" title="Quản lý ứng viên" subtitle="Theo dõi hồ sơ và cập nhật tiến trình tuyển chọn." onLogout={logout}>
+      <section className="organization-page-body">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <a className="text-sm font-semibold text-primary" href={ROUTES.organizationDashboard}>Dashboard</a>
@@ -188,7 +191,7 @@ export function ApplicantsPage() {
           <EmptyState className="mt-6" title="Chưa có ứng viên" description="Khi sinh viên ứng tuyển, hồ sơ sẽ xuất hiện tại đây." />
         ) : null}
       </section>
-    </main>
+    </DashboardLayout>
   );
 }
 

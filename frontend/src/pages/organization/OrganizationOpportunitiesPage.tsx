@@ -4,8 +4,11 @@ import { ROUTES } from "../../config/routes";
 import { opportunityApi } from "../../features/opportunities/api/opportunityApi";
 import { OpportunityForm } from "../../features/opportunities/components/OpportunityForm";
 import type { Opportunity, OpportunityPayload } from "../../types/opportunity";
+import { useAuth } from "../../features/auth/hooks/useAuth";
+import { DashboardLayout } from "../../layouts/DashboardLayout";
 
 export function OrganizationOpportunitiesPage() {
+  const { logout } = useAuth();
   const [items, setItems] = useState<Opportunity[]>([]);
   const [editing, setEditing] = useState<Opportunity | undefined>();
   const [message, setMessage] = useState("");
@@ -43,8 +46,8 @@ export function OrganizationOpportunitiesPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      <section className="mx-auto max-w-6xl px-6 py-10">
+    <DashboardLayout role="ORGANIZATION" title="Quản lý cơ hội" subtitle="Tạo, cập nhật và theo dõi trạng thái các bài đăng của tổ chức." onLogout={logout}>
+      <section className="organization-page-body">
         <a className="text-sm font-semibold text-primary" href={ROUTES.organizationDashboard}>Về dashboard</a>
         <h1 className="mt-4 text-3xl font-bold">Quản lý cơ hội</h1>
         <p className="mt-2 text-muted-foreground">Tạo, sửa và đóng cơ hội của tổ chức. Bài mới luôn ở trạng thái chờ duyệt.</p>
@@ -76,7 +79,7 @@ export function OrganizationOpportunitiesPage() {
           <OpportunityForm initialValue={editing} onSubmit={handleSubmit} />
         </div>
       </section>
-    </main>
+    </DashboardLayout>
   );
 }
 

@@ -25,7 +25,7 @@ export function AdminDashboardPage() {
 
   return (
     <AdminLayout
-      title="Admin Dashboard"
+      title="Trung tâm quản trị"
       subtitle={`Xin chào, ${user?.fullName ?? ""}`}
       onLogout={logout}
       actions={(
@@ -45,7 +45,7 @@ export function AdminDashboardPage() {
       ) : null}
 
       {dashboard ? (
-        <div className="space-y-6">
+        <div className="space-y-6 admin-dashboard">
           <div className="grid overflow-hidden rounded-md border border-outline-variant bg-white sm:grid-cols-2 xl:grid-cols-4 xl:divide-x xl:divide-outline-variant">
             <MetricCard icon={ShieldCheck} label="Chờ duyệt" value={dashboard.pendingOpportunities} hint="Cơ hội đang chờ moderation" />
             <MetricCard icon={Siren} label="Reports" value={dashboard.pendingReports} hint="Báo cáo chưa xử lý" />

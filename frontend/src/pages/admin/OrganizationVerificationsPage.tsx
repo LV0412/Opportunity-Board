@@ -6,8 +6,11 @@ import { Button } from "../../components/ui/Button";
 import { ROUTES } from "../../config/routes";
 import { adminApi } from "../../features/admin/api/adminApi";
 import type { OrganizationVerification } from "../../types/admin";
+import { useAuth } from "../../features/auth/hooks/useAuth";
+import { AdminLayout } from "../../layouts/AdminLayout";
 
 export function OrganizationVerificationsPage() {
+  const { logout } = useAuth();
   const [items, setItems] = useState<OrganizationVerification[]>([]);
   const [loading, setLoading] = useState(true);
   const [workingId, setWorkingId] = useState<string | null>(null);
@@ -49,8 +52,8 @@ export function OrganizationVerificationsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      <section className="mx-auto max-w-6xl px-6 py-10">
+    <AdminLayout title="Xác minh tổ chức" subtitle="Kiểm tra hồ sơ trước khi cấp huy hiệu xác minh." onLogout={logout}>
+      <section className="admin-page-body">
         <a className="text-sm font-semibold text-primary" href={ROUTES.adminDashboard}>Về dashboard</a>
         <div className="mt-4 flex items-center gap-3">
           <ShieldCheck className="h-8 w-8 text-primary" aria-hidden="true" />
@@ -100,7 +103,7 @@ export function OrganizationVerificationsPage() {
           </div>
         ) : null}
       </section>
-    </main>
+    </AdminLayout>
   );
 }
 

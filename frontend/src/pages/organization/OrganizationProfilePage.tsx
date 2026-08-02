@@ -14,8 +14,11 @@ import { MAX_LOGO_SIZE_MB } from "../../config/constants";
 import { organizationApi } from "../../features/organizations/api/organizationApi";
 import type { OrganizationProfile } from "../../types/profile";
 import { isUrl } from "../../utils/validators";
+import { useAuth } from "../../features/auth/hooks/useAuth";
+import { DashboardLayout } from "../../layouts/DashboardLayout";
 
 export function OrganizationProfilePage() {
+  const { logout } = useAuth();
   const [profile, setProfile] = useState<OrganizationProfile | null>(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -79,8 +82,8 @@ export function OrganizationProfilePage() {
   }
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      <section className="mx-auto max-w-5xl px-6 py-10">
+    <DashboardLayout role="ORGANIZATION" title="Hồ sơ tổ chức" subtitle="Hoàn thiện thông tin thương hiệu để tăng độ tin cậy với ứng viên." onLogout={logout}>
+      <section className="organization-page-body organization-profile-page">
         <a className="text-sm font-semibold text-primary" href={ROUTES.organizationDashboard}>Về dashboard</a>
         <h1 className="mt-4 text-3xl font-bold">Hồ sơ tổ chức</h1>
         <p className="mt-2 text-muted-foreground">Cập nhật thông tin để bài đăng cơ hội đáng tin cậy hơn.</p>
@@ -140,7 +143,7 @@ export function OrganizationProfilePage() {
           </div>
         ) : null}
       </section>
-    </main>
+    </DashboardLayout>
   );
 }
 
