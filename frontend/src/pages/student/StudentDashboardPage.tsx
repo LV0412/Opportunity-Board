@@ -50,7 +50,7 @@ export function StudentDashboardPage() {
 
       {dashboard ? (
         <div className="space-y-6">
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid overflow-hidden rounded-md border border-outline-variant bg-white sm:grid-cols-2 xl:grid-cols-4 xl:divide-x xl:divide-outline-variant">
             <MetricCard icon={Search} label="Cơ hội đề xuất" value={dashboard.recommendedOpportunities.length} hint="Gợi ý theo hồ sơ của bạn" />
             <MetricCard icon={Bookmark} label="Đã lưu" value={dashboard.savedCount} hint="Cơ hội bạn đã bookmark" />
             <MetricCard icon={FileText} label="Ứng tuyển" value={dashboard.applicationCount} hint="Hồ sơ đã nộp trong hệ thống" />
@@ -149,7 +149,7 @@ function MetricCard({
   hint: string;
 }) {
   return (
-    <article className="rounded-md border border-border bg-white p-5 shadow-sm">
+    <article className="border-b border-outline-variant bg-white p-5 last:border-b-0 xl:border-b-0">
       <Icon className="h-5 w-5 text-primary" aria-hidden="true" />
       <p className="mt-4 text-sm font-semibold text-muted-foreground">{label}</p>
       <p className="mt-2 text-3xl font-bold">{value}</p>

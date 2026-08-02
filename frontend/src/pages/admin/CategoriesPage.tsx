@@ -14,7 +14,7 @@ export function CategoriesPage() {
         setCategories(nextCategories);
         setTags(nextTags);
       })
-      .catch((exception) => setError(exception instanceof Error ? exception.message : "Không thể tải taxonomy"));
+      .catch((exception) => setError(exception instanceof Error ? exception.message : "Không thể tải dữ liệu phân loại"));
   }, []);
 
   async function createCategory(form: FormData) {
@@ -35,7 +35,7 @@ export function CategoriesPage() {
   }
 
   async function editCategory(item: Category) {
-    const name = window.prompt("Tên category", item.name);
+    const name = window.prompt("Tên danh mục", item.name);
     const slug = window.prompt("Slug", item.slug);
     const description = window.prompt("Mô tả", item.description ?? "");
     if (!name?.trim() || !slug?.trim()) {
@@ -51,7 +51,7 @@ export function CategoriesPage() {
   }
 
   async function editTag(item: Tag) {
-    const name = window.prompt("Tên tag", item.name);
+    const name = window.prompt("Tên thẻ", item.name);
     const slug = window.prompt("Slug", item.slug);
     if (!name?.trim() || !slug?.trim()) {
       return;
@@ -69,12 +69,12 @@ export function CategoriesPage() {
     <main className="min-h-screen bg-background text-foreground">
       <section className="mx-auto max-w-6xl px-6 py-10">
         <a className="text-sm font-semibold text-primary" href={ROUTES.adminDashboard}>Về dashboard</a>
-        <h1 className="mt-4 text-3xl font-bold">Quản lý taxonomy</h1>
-        <p className="mt-2 text-muted-foreground">Danh mục và tag dùng cho form tạo cơ hội và bộ lọc khám phá.</p>
+        <h1 className="mt-4 text-3xl font-bold">Quản lý danh mục và thẻ</h1>
+        <p className="mt-2 text-muted-foreground">Dữ liệu phân loại dùng trong biểu mẫu tạo cơ hội và bộ lọc khám phá.</p>
         {error ? <p className="mt-6 rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p> : null}
         <div className="mt-8 grid gap-6 lg:grid-cols-2">
           <section className="rounded-md border border-border bg-white p-5 shadow-sm">
-            <h2 className="text-lg font-semibold">Categories</h2>
+            <h2 className="text-lg font-semibold">Danh mục</h2>
             <form
               className="mt-4 grid gap-3"
               onSubmit={(event) => {
@@ -83,10 +83,10 @@ export function CategoriesPage() {
                 event.currentTarget.reset();
               }}
             >
-              <input className="h-10 rounded-md border border-border px-3" name="categoryName" placeholder="Tên category" />
+              <input className="h-10 rounded-md border border-border px-3" name="categoryName" placeholder="Tên danh mục" />
               <input className="h-10 rounded-md border border-border px-3" name="categorySlug" placeholder="Slug" />
               <textarea className="min-h-24 rounded-md border border-border px-3 py-2" name="categoryDescription" placeholder="Mô tả" />
-              <button className="rounded-md bg-primary px-4 py-2.5 font-semibold text-primary-foreground" type="submit">Thêm category</button>
+              <button className="rounded-md bg-primary px-4 py-2.5 font-semibold text-primary-foreground" type="submit">Thêm danh mục</button>
             </form>
             <div className="mt-5 space-y-3">
               {categories.map((item) => (
@@ -107,7 +107,7 @@ export function CategoriesPage() {
           </section>
 
           <section className="rounded-md border border-border bg-white p-5 shadow-sm">
-            <h2 className="text-lg font-semibold">Tags</h2>
+            <h2 className="text-lg font-semibold">Thẻ</h2>
             <form
               className="mt-4 grid gap-3"
               onSubmit={(event) => {
@@ -116,9 +116,9 @@ export function CategoriesPage() {
                 event.currentTarget.reset();
               }}
             >
-              <input className="h-10 rounded-md border border-border px-3" name="tagName" placeholder="Tên tag" />
+              <input className="h-10 rounded-md border border-border px-3" name="tagName" placeholder="Tên thẻ" />
               <input className="h-10 rounded-md border border-border px-3" name="tagSlug" placeholder="Slug" />
-              <button className="rounded-md bg-primary px-4 py-2.5 font-semibold text-primary-foreground" type="submit">Thêm tag</button>
+              <button className="rounded-md bg-primary px-4 py-2.5 font-semibold text-primary-foreground" type="submit">Thêm thẻ</button>
             </form>
             <div className="mt-5 flex flex-wrap gap-2">
               {tags.map((item) => (

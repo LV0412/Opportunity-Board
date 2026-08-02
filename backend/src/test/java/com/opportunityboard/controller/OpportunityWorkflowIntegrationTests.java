@@ -41,7 +41,8 @@ class OpportunityWorkflowIntegrationTests {
 
         String opportunityId = createOpportunity(organizationToken, "Backend Internship");
 
-        mockMvc.perform(get("/api/opportunities/{id}", opportunityId))
+        mockMvc.perform(get("/api/opportunities/{id}", opportunityId)
+                        .header("Authorization", "Bearer " + organizationToken))
                 .andExpect(status().isNotFound());
 
         mockMvc.perform(get("/api/admin/opportunities/pending")
@@ -54,7 +55,8 @@ class OpportunityWorkflowIntegrationTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("APPROVED"));
 
-        mockMvc.perform(get("/api/opportunities/{id}", opportunityId))
+        mockMvc.perform(get("/api/opportunities/{id}", opportunityId)
+                        .header("Authorization", "Bearer " + organizationToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Backend Internship"))
                 .andExpect(jsonPath("$.status").value("APPROVED"));
@@ -74,8 +76,31 @@ class OpportunityWorkflowIntegrationTests {
                 .andExpect(jsonPath("$.status").value("REJECTED"))
                 .andExpect(jsonPath("$.latestReviewNote").value("Missing eligibility details"));
 
-        mockMvc.perform(get("/api/opportunities/{id}", opportunityId))
+        mockMvc.perform(get("/api/opportunities/{id}", opportunityId)
+                        .header("Authorization", "Bearer " + organizationToken))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void opportunityDetailRequiresAuthenticationWhileSearchRemainsPublic() throws Exception {
+        String organizationToken = registerAndGetToken("detail-auth-org@example.com", UserRole.ORGANIZATION);
+        String adminToken = registerAndGetToken("detail-auth-admin@example.com", UserRole.ADMIN);
+        String opportunityId = createOpportunity(organizationToken, "Authenticated Detail Opportunity");
+
+        mockMvc.perform(post("/api/admin/opportunities/{id}/approve", opportunityId)
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/opportunities/search"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/opportunities/{id}", opportunityId))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(get("/api/opportunities/{id}", opportunityId)
+                        .header("Authorization", "Bearer " + organizationToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(opportunityId));
     }
 
     @Test

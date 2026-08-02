@@ -33,26 +33,23 @@ public class CloudinaryStorageService implements StorageService {
 
     @Override
     public String uploadResume(MultipartFile file) {
-        return upload(file, "opportunity-board/resumes", "raw");
+        // Cloudinary serves raw assets as downloads. Storing PDFs as image assets
+        // keeps the .pdf delivery URL renderable by the browser's PDF viewer.
+        return upload(file, "opportunity-board/resumes", "image", "pdf");
     }
 
     @Override
     public String uploadLogo(MultipartFile file) {
-        return upload(file, "opportunity-board/logos", "image");
+        return upload(file, "opportunity-board/logos", "image", null);
     }
 
-    private String upload(MultipartFile file, String folder, String resourceType) {
+    private String upload(MultipartFile file, String folder, String resourceType, String format) {
         if (!configured) {
             throw new ResponseStatusException(SERVICE_UNAVAILABLE, "Cloudinary storage is not configured");
         }
 
         try {
-            Map<?, ?> result = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
-                    "folder", folder,
-                    "resource_type", resourceType,
-                    "use_filename", true,
-                    "unique_filename", true
-            ));
+            Map<?, ?> result = cloudinary.uploader().upload(file.getBytes(), uploadOptions(folder, resourceType, format));
             Object secureUrl = result.get("secure_url");
             if (secureUrl == null) {
                 throw new ResponseStatusException(SERVICE_UNAVAILABLE, "Cloudinary upload did not return a URL");
@@ -63,5 +60,18 @@ public class CloudinaryStorageService implements StorageService {
         } catch (RuntimeException exception) {
             throw new ResponseStatusException(SERVICE_UNAVAILABLE, "Could not upload file to Cloudinary", exception);
         }
+    }
+
+    static Map<String, Object> uploadOptions(String folder, String resourceType, String format) {
+        Map<String, Object> options = ObjectUtils.asMap(
+                "folder", folder,
+                "resource_type", resourceType,
+                "use_filename", true,
+                "unique_filename", true
+        );
+        if (format != null) {
+            options.put("format", format);
+        }
+        return options;
     }
 }

@@ -3,6 +3,7 @@ package com.opportunityboard.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opportunityboard.common.enums.UserRole;
+import com.opportunityboard.infrastructure.storage.StorageService;
 import com.opportunityboard.repository.NotificationRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -19,10 +22,12 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -39,6 +44,59 @@ class ApplicationControllerIntegrationTests {
 
     @Autowired
     private TestAuthHelper testAuthHelper;
+
+    @MockBean
+    private StorageService storageService;
+
+    @Test
+    void studentAppliesWithPdfResumeAndCoverLetter() throws Exception {
+        String organizationToken = registerAndGetToken("multipart-org@example.com", UserRole.ORGANIZATION);
+        String adminToken = registerAndGetToken("multipart-admin@example.com", UserRole.ADMIN);
+        String studentToken = registerAndGetToken("multipart-student@example.com", UserRole.STUDENT);
+        String opportunityId = createOpportunity(organizationToken, "Java Backend Internship", Instant.now().plusSeconds(604800));
+        approve(adminToken, opportunityId);
+        when(storageService.uploadResume(org.mockito.ArgumentMatchers.any()))
+                .thenReturn("https://cdn.example.com/resume.pdf");
+
+        MockMultipartFile resume = new MockMultipartFile(
+                "resume",
+                "student-cv.pdf",
+                MediaType.APPLICATION_PDF_VALUE,
+                "%PDF-1.7 test document".getBytes(java.nio.charset.StandardCharsets.UTF_8)
+        );
+
+        mockMvc.perform(multipart("/api/opportunities/{id}/apply", opportunityId)
+                        .file(resume)
+                        .param("coverLetter", "Tôi mong muốn được đồng hành cùng tổ chức.")
+                        .header("Authorization", "Bearer " + studentToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("APPLIED"))
+                .andExpect(jsonPath("$.coverLetter").value("Tôi mong muốn được đồng hành cùng tổ chức."))
+                .andExpect(jsonPath("$.resumeFileName").value("student-cv.pdf"))
+                .andExpect(jsonPath("$.resumeFileUrl").value("https://cdn.example.com/resume.pdf"));
+    }
+
+    @Test
+    void multipartApplicationRejectsNonPdfResume() throws Exception {
+        String organizationToken = registerAndGetToken("invalid-resume-org@example.com", UserRole.ORGANIZATION);
+        String adminToken = registerAndGetToken("invalid-resume-admin@example.com", UserRole.ADMIN);
+        String studentToken = registerAndGetToken("invalid-resume-student@example.com", UserRole.STUDENT);
+        String opportunityId = createOpportunity(organizationToken, "Invalid Resume Internship", Instant.now().plusSeconds(604800));
+        approve(adminToken, opportunityId);
+
+        MockMultipartFile resume = new MockMultipartFile(
+                "resume",
+                "resume.txt",
+                MediaType.TEXT_PLAIN_VALUE,
+                "not a pdf".getBytes(java.nio.charset.StandardCharsets.UTF_8)
+        );
+
+        mockMvc.perform(multipart("/api/opportunities/{id}/apply", opportunityId)
+                        .file(resume)
+                        .param("coverLetter", "Message")
+                        .header("Authorization", "Bearer " + studentToken))
+                .andExpect(status().isBadRequest());
+    }
 
     @Test
     void studentAppliesOnceAndTracksStatusUpdateNotification() throws Exception {

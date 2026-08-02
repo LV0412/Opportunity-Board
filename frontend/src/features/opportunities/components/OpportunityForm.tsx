@@ -39,7 +39,8 @@ export function OpportunityForm({ initialValue, onSubmit }: OpportunityFormProps
     event.preventDefault();
     setError("");
 
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     const title = String(form.get("title") ?? "");
     const description = String(form.get("description") ?? "");
     const applyUrl = String(form.get("applyUrl") ?? "");
@@ -70,7 +71,7 @@ export function OpportunityForm({ initialValue, onSubmit }: OpportunityFormProps
         categorySlug: String(form.get("categorySlug") ?? categories[0]?.slug ?? "internship"),
         tags: selectedTags,
       });
-      event.currentTarget.reset();
+      formElement.reset();
     } catch (exception) {
       setError(exception instanceof Error ? exception.message : "Không thể lưu cơ hội");
     } finally {
@@ -92,7 +93,7 @@ export function OpportunityForm({ initialValue, onSubmit }: OpportunityFormProps
         <InputField label="Link ứng tuyển" name="applyUrl" type="url" defaultValue={initialValue?.applyUrl ?? ""} hint="Dùng link form, ATS hoặc website chính thức." />
         <InputField label="Deadline" name="deadlineAt" type="datetime-local" defaultValue={toDateTimeLocal(initialValue?.deadlineAt)} />
         <label className="block text-sm font-medium">
-          Tags
+          Thẻ
           <select className="mt-2 min-h-28 w-full rounded-md border border-border bg-white px-3 py-2 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20" name="tags" multiple defaultValue={initialValue?.tags ?? []}>
             {tags.map((tag) => <option key={tag.id} value={tag.name}>{tag.name}</option>)}
           </select>
@@ -100,7 +101,7 @@ export function OpportunityForm({ initialValue, onSubmit }: OpportunityFormProps
       </div>
       <label className="mt-4 flex items-center gap-2 text-sm font-medium">
         <input className="h-4 w-4 accent-primary" name="remote" type="checkbox" defaultChecked={initialValue?.remote ?? false} />
-        Remote
+        Làm việc từ xa
       </label>
       <TextareaField className="mt-4" label="Mô tả" name="description" defaultValue={initialValue?.description ?? ""} required />
       <TextareaField className="mt-4" label="Yêu cầu" name="requirements" defaultValue={initialValue?.requirements ?? ""} />

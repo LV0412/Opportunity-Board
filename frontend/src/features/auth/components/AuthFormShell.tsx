@@ -9,24 +9,23 @@ type AuthFormShellProps = {
 
 export function AuthFormShell({ title, subtitle, children }: AuthFormShellProps) {
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      <section className="mx-auto grid min-h-screen max-w-6xl items-center gap-10 px-6 py-12 lg:grid-cols-[1fr_420px]">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-wide text-primary">{APP_NAME}</p>
-          <h1 className="mt-4 max-w-2xl text-4xl font-bold tracking-normal sm:text-5xl">
-            Tập trung cơ hội học tập, nghề nghiệp và khởi nghiệp cho sinh viên
-          </h1>
-          <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground">
-            Đăng nhập để lưu cơ hội, theo dõi hồ sơ ứng tuyển và nhận dashboard phù hợp với vai trò của bạn.
-          </p>
-        </div>
-
-        <div className="rounded-md border border-border bg-white p-6 shadow-sm">
-          <h2 className="text-2xl font-semibold">{title}</h2>
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">{subtitle}</p>
-          <div className="mt-6">{children}</div>
+    <main className="flex min-h-screen flex-col bg-surface text-foreground">
+      <header className="flex h-20 items-center justify-center border-b border-outline-variant/60">
+        <a className="text-2xl font-bold tracking-tight text-primary" href="/">{APP_NAME}</a>
+      </header>
+      <section className="flex flex-1 items-center justify-center px-4 py-12">
+        <div className="w-full max-w-[550px] rounded-md border border-outline-variant bg-white p-8 sm:p-10">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
+            <p className="mt-2 text-sm leading-6 text-on-surface-variant">{subtitle}</p>
+          </div>
+          <div className="mt-8">{children}</div>
         </div>
       </section>
+      <footer className="flex min-h-20 flex-wrap items-center justify-between gap-3 border-t border-outline-variant/60 px-6 text-sm text-on-surface-variant">
+        <span>© 2026 {APP_NAME}. Tất cả quyền được bảo lưu.</span>
+        <span>Điều khoản dịch vụ · Chính sách bảo mật · Liên hệ</span>
+      </footer>
     </main>
   );
 }

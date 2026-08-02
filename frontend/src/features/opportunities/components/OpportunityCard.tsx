@@ -1,5 +1,6 @@
 import { Bookmark, CalendarClock, ExternalLink, MapPin } from "lucide-react";
 import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { ROUTES } from "../../../config/routes";
 import { useAuth } from "../../auth/hooks/useAuth";
 import { bookmarkApi } from "../../bookmarks/api/bookmarkApi";
@@ -13,6 +14,8 @@ type Props = {
 
 export function OpportunityCard({ opportunity, initiallySaved = false, onBookmarkChange }: Props) {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [saved, setSaved] = useState(initiallySaved);
   const [bookmarkCount, setBookmarkCount] = useState(opportunity.bookmarkCount);
   const [saving, setSaving] = useState(false);
@@ -21,15 +24,15 @@ export function OpportunityCard({ opportunity, initiallySaved = false, onBookmar
     : "Không giới hạn";
 
   function goToLogin() {
-    window.history.pushState({}, "", ROUTES.login);
-    window.dispatchEvent(new PopStateEvent("popstate"));
+    navigate(ROUTES.login, { state: { from: location.pathname + location.search } });
   }
 
   async function toggleBookmark() {
-    if (user?.role !== "STUDENT") {
+    if (!user) {
       goToLogin();
       return;
     }
+    if (user.role !== "STUDENT") return;
 
     setSaving(true);
     try {
@@ -46,11 +49,11 @@ export function OpportunityCard({ opportunity, initiallySaved = false, onBookmar
   }
 
   return (
-    <article className="flex h-full flex-col rounded-md border border-border bg-white p-5 shadow-sm transition hover:border-primary hover:shadow-md">
+    <article className="flex h-full flex-col rounded-md border border-outline-variant bg-white p-4 transition-colors hover:border-primary">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-primary">{opportunity.categoryName}</p>
-          <a className="mt-2 block text-lg font-semibold leading-6 text-foreground hover:text-primary" href={`${ROUTES.opportunityDetail}/${opportunity.id}`}>
+          <p className="inline-flex rounded bg-primary/5 px-2 py-1 text-[11px] font-semibold uppercase text-primary">{opportunity.categoryName}</p>
+          <a className="mt-3 block text-base font-semibold leading-6 text-foreground hover:text-primary" href={`${ROUTES.opportunityDetail}/${opportunity.id}`}>
             {opportunity.title}
           </a>
           <p className="mt-1 text-sm text-muted-foreground">{opportunity.organizationName}</p>
@@ -64,14 +67,14 @@ export function OpportunityCard({ opportunity, initiallySaved = false, onBookmar
           type="button"
           title={saved ? "Bỏ lưu cơ hội" : "Lưu cơ hội"}
           aria-label={saved ? "Bỏ lưu cơ hội" : "Lưu cơ hội"}
-          disabled={saving}
+          disabled={saving || Boolean(user && user.role !== "STUDENT")}
           onClick={toggleBookmark}
         >
           <Bookmark className="h-4 w-4" fill={saved ? "currentColor" : "none"} aria-hidden="true" />
         </button>
       </div>
 
-      <p className="mt-4 line-clamp-2 text-sm leading-6 text-muted-foreground">{opportunity.description}</p>
+      <p className="mt-3 line-clamp-2 text-sm leading-6 text-muted-foreground">{opportunity.description}</p>
 
       <div className="mt-4 flex flex-wrap gap-2">
         {opportunity.tags.slice(0, 4).map((tag) => (
@@ -81,11 +84,11 @@ export function OpportunityCard({ opportunity, initiallySaved = false, onBookmar
         ))}
       </div>
 
-      <div className="mt-auto pt-5">
+      <div className="mt-auto border-t border-border pt-4">
         <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
           <span className="inline-flex items-center gap-1.5">
             <MapPin className="h-4 w-4" aria-hidden="true" />
-            {opportunity.remote ? "Remote" : opportunity.location ?? "Không rõ"}
+            {opportunity.remote ? "Từ xa" : opportunity.location ?? "Không rõ"}
           </span>
           <span className="inline-flex items-center gap-1.5">
             <CalendarClock className="h-4 w-4" aria-hidden="true" />

@@ -1,5 +1,5 @@
 import { Bell, CheckCheck, ChevronRight, Clock3 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { notificationApi } from "../api/notificationApi";
 import type { NotificationItem } from "../../../types/notification";
 
@@ -8,18 +8,14 @@ type NotificationPanelProps = {
   pageSize?: number;
 };
 
-export function NotificationPanel({ title = "Thong bao", pageSize = 6 }: NotificationPanelProps) {
+export function NotificationPanel({ title = "Thông báo", pageSize = 6 }: NotificationPanelProps) {
   const [items, setItems] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [submittingId, setSubmittingId] = useState<string | null>(null);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    void loadNotifications();
-  }, [pageSize]);
-
-  async function loadNotifications() {
+  const loadNotifications = useCallback(async () => {
     setLoading(true);
     setError("");
 
@@ -31,11 +27,15 @@ export function NotificationPanel({ title = "Thong bao", pageSize = 6 }: Notific
       setItems(result.content);
       setUnreadCount(unread.count);
     } catch (exception) {
-      setError(exception instanceof Error ? exception.message : "Khong the tai thong bao");
+      setError(exception instanceof Error ? exception.message : "Không thể tải thông báo");
     } finally {
       setLoading(false);
     }
-  }
+  }, [pageSize]);
+
+  useEffect(() => {
+    void loadNotifications();
+  }, [loadNotifications]);
 
   async function markAsRead(notificationId: string) {
     setSubmittingId(notificationId);
@@ -44,7 +44,7 @@ export function NotificationPanel({ title = "Thong bao", pageSize = 6 }: Notific
       setItems((current) => current.map((item) => item.id === notificationId ? updated : item));
       setUnreadCount((current) => Math.max(current - 1, 0));
     } catch (exception) {
-      setError(exception instanceof Error ? exception.message : "Khong the cap nhat thong bao");
+      setError(exception instanceof Error ? exception.message : "Không thể cập nhật thông báo");
     } finally {
       setSubmittingId(null);
     }
@@ -57,7 +57,7 @@ export function NotificationPanel({ title = "Thong bao", pageSize = 6 }: Notific
       setItems((current) => current.map((item) => ({ ...item, read: true, readAt: item.readAt ?? new Date().toISOString() })));
       setUnreadCount(0);
     } catch (exception) {
-      setError(exception instanceof Error ? exception.message : "Khong the cap nhat thong bao");
+      setError(exception instanceof Error ? exception.message : "Không thể cập nhật thông báo");
     } finally {
       setSubmittingId(null);
     }
@@ -76,7 +76,7 @@ export function NotificationPanel({ title = "Thong bao", pageSize = 6 }: Notific
           <div>
             <h2 className="font-semibold">{title}</h2>
             <p className="text-sm text-muted-foreground">
-              {hasUnread ? `${unreadCount} thong bao chua doc` : "Ban da doc het thong bao"}
+              {hasUnread ? `${unreadCount} thông báo chưa đọc` : "Bạn đã đọc hết thông báo"}
             </p>
           </div>
         </div>
@@ -87,7 +87,7 @@ export function NotificationPanel({ title = "Thong bao", pageSize = 6 }: Notific
           onClick={() => void markAllAsRead()}
         >
           <CheckCheck className="h-4 w-4" aria-hidden="true" />
-          Danh dau da doc
+          Đánh dấu đã đọc
         </button>
       </div>
 
@@ -131,7 +131,7 @@ export function NotificationPanel({ title = "Thong bao", pageSize = 6 }: Notific
                         }
                       }}
                     >
-                      Mo
+                      Mở
                       <ChevronRight className="h-4 w-4" aria-hidden="true" />
                     </a>
                   ) : null}
@@ -142,7 +142,7 @@ export function NotificationPanel({ title = "Thong bao", pageSize = 6 }: Notific
                       disabled={submittingId === item.id}
                       onClick={() => void markAsRead(item.id)}
                     >
-                      Da doc
+                      Đã đọc
                     </button>
                   ) : null}
                 </div>
@@ -154,8 +154,8 @@ export function NotificationPanel({ title = "Thong bao", pageSize = 6 }: Notific
 
       {!loading && !content.length ? (
         <div className="mt-4 rounded-md border border-dashed border-border px-4 py-8 text-center">
-          <p className="font-semibold">Chua co thong bao nao</p>
-          <p className="mt-2 text-sm text-muted-foreground">Thong bao ve ung tuyen, deadline va weekly digest se hien thi tai day.</p>
+          <p className="font-semibold">Chưa có thông báo nào</p>
+          <p className="mt-2 text-sm text-muted-foreground">Thông báo về ứng tuyển, deadline và tổng hợp tuần sẽ hiển thị tại đây.</p>
         </div>
       ) : null}
     </section>

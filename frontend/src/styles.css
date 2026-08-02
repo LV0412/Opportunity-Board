@@ -52,6 +52,31 @@ a {
   text-decoration: none;
 }
 
+:focus-visible {
+  outline: 2px solid var(--stitch-primary-container);
+  outline-offset: 2px;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  transition-duration: 180ms;
+  transition-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
 .font-display-lg,
 .font-headline-lg,
 .font-headline-md,

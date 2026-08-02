@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
+import { NavLink } from "react-router-dom";
 import { ROUTES } from "../../config/routes";
 import type { UserRole } from "../../types/auth";
 
@@ -34,48 +35,47 @@ type NavItem = {
 const itemsByRole: Record<UserRole, NavItem[]> = {
   STUDENT: [
     { label: "Dashboard", href: ROUTES.studentDashboard, icon: LayoutDashboard },
-    { label: "Kham pha", href: ROUTES.explore, icon: Search },
-    { label: "Da luu", href: ROUTES.studentSavedOpportunities, icon: Bell },
-    { label: "Ung tuyen", href: ROUTES.studentApplications, icon: ClipboardCheck },
-    { label: "Ho so", href: ROUTES.studentProfile, icon: UserCircle2 },
+    { label: "Khám phá", href: ROUTES.explore, icon: Search },
+    { label: "Đã lưu", href: ROUTES.studentSavedOpportunities, icon: Bell },
+    { label: "Ứng tuyển", href: ROUTES.studentApplications, icon: ClipboardCheck },
+    { label: "Hồ sơ", href: ROUTES.studentProfile, icon: UserCircle2 },
   ],
   ORGANIZATION: [
     { label: "Dashboard", href: ROUTES.organizationDashboard, icon: LayoutDashboard },
-    { label: "Co hoi", href: ROUTES.organizationOpportunities, icon: BriefcaseBusiness },
-    { label: "Ung vien", href: ROUTES.organizationApplicants, icon: Users },
-    { label: "Ho so to chuc", href: ROUTES.organizationProfile, icon: FolderKanban },
+    { label: "Cơ hội", href: ROUTES.organizationOpportunities, icon: BriefcaseBusiness },
+    { label: "Ứng viên", href: ROUTES.organizationApplicants, icon: Users },
+    { label: "Hồ sơ tổ chức", href: ROUTES.organizationProfile, icon: FolderKanban },
   ],
   ADMIN: [
     { label: "Dashboard", href: ROUTES.adminDashboard, icon: LayoutDashboard },
-    { label: "Cho duyet", href: ROUTES.adminPendingOpportunities, icon: ShieldCheck },
-    { label: "Reports", href: ROUTES.adminReports, icon: Siren },
-    { label: "Nguoi dung", href: ROUTES.adminUsers, icon: Users },
-    { label: "Categories", href: ROUTES.adminCategories, icon: Tags },
+    { label: "Chờ duyệt", href: ROUTES.adminPendingOpportunities, icon: ShieldCheck },
+    { label: "Báo cáo", href: ROUTES.adminReports, icon: Siren },
+    { label: "Người dùng", href: ROUTES.adminUsers, icon: Users },
+    { label: "Danh mục", href: ROUTES.adminCategories, icon: Tags },
   ],
 };
 
 const roleLabel: Record<UserRole, string> = {
-  STUDENT: "Sinh vien",
-  ORGANIZATION: "To chuc",
+  STUDENT: "Sinh viên",
+  ORGANIZATION: "Tổ chức",
   ADMIN: "Admin",
 };
 
 export function Sidebar({ role, open, onClose, onLogout }: SidebarProps) {
-  const currentPath = window.location.pathname;
   const items = itemsByRole[role];
 
   return (
     <>
       {open ? <button className="fixed inset-0 z-30 bg-slate-900/30 lg:hidden" type="button" aria-label="Dong menu" onClick={onClose} /> : null}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-border bg-white transition-transform lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 flex w-60 flex-col border-r border-outline-variant/60 bg-surface-container-low transition-transform lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between border-b border-border px-5 py-5">
+        <div className="flex h-16 items-center justify-between border-b border-outline-variant/60 px-4">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-primary">Opportunity Board</p>
-            <p className="mt-2 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground">
+            <p className="text-base font-bold tracking-tight text-on-surface">UniOPP</p>
+            <p className="mt-0.5 inline-flex items-center gap-1.5 text-xs font-medium text-on-surface-variant">
               <RoleIcon role={role} />
               {roleLabel[role]}
             </p>
@@ -85,31 +85,28 @@ export function Sidebar({ role, open, onClose, onLogout }: SidebarProps) {
           </button>
         </div>
 
-        <nav className="flex-1 space-y-1 px-3 py-4">
+        <nav className="flex-1 space-y-1 px-2 py-3" aria-label="Điều hướng chính">
           {items.map((item) => {
-            const active = currentPath === item.href;
             const Icon = item.icon;
             return (
-              <a
+              <NavLink
                 key={item.href}
-                className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-semibold transition ${
-                  active
-                    ? "bg-primary text-primary-foreground"
-                    : "text-foreground hover:bg-muted"
+                className={({ isActive }) => `flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition ${
+                  isActive ? "bg-[#d8e3fa] text-on-surface" : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface"
                 }`}
-                href={item.href}
+                to={item.href}
                 onClick={onClose}
               >
                 <Icon className="h-4 w-4" aria-hidden="true" />
                 {item.label}
-              </a>
+              </NavLink>
             );
           })}
         </nav>
 
-        <div className="border-t border-border px-4 py-4">
-          <button className="w-full rounded-md border border-border bg-white px-4 py-2.5 text-sm font-semibold" type="button" onClick={onLogout}>
-            Dang xuat
+        <div className="border-t border-outline-variant/60 px-3 py-3">
+          <button className="w-full rounded-md border border-outline-variant bg-surface-container-lowest px-4 py-2 text-sm font-semibold hover:bg-surface-container" type="button" onClick={onLogout}>
+            Đăng xuất
           </button>
         </div>
       </aside>

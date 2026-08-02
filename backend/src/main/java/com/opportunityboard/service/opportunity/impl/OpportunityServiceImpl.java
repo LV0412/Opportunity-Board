@@ -171,7 +171,9 @@ public class OpportunityServiceImpl implements OpportunityService {
                 continue;
             }
             String slug = slugify(name);
-            Tag tag = tagRepository.findBySlug(slug).orElseGet(() -> {
+            Tag tag = tagRepository.findByNameIgnoreCase(name)
+                    .or(() -> tagRepository.findBySlug(slug))
+                    .orElseGet(() -> {
                 Tag created = new Tag();
                 created.setName(name);
                 created.setSlug(slug);

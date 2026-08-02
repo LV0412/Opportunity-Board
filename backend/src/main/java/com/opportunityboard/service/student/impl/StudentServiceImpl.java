@@ -112,13 +112,13 @@ public class StudentServiceImpl implements StudentService {
 
     private void validateResume(MultipartFile file) {
         if (file == null || file.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Resume file is required");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Vui lòng chọn tệp CV");
         }
         if (file.getSize() > MAX_RESUME_SIZE_BYTES) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Resume file must be 5MB or smaller");
+            throw new ResponseStatusException(HttpStatus.PAYLOAD_TOO_LARGE, "Tệp CV phải có dung lượng không quá 5 MB");
         }
         if (!"application/pdf".equalsIgnoreCase(file.getContentType())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Resume file must be a PDF");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tệp CV phải có định dạng PDF");
         }
     }
 

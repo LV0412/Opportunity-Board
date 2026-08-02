@@ -21,7 +21,7 @@ export const opportunityApi = {
     return apiClient<PageResponse<Opportunity>>(`/opportunities/search?${query}`, { skipAuth: true });
   },
   getById(id: string) {
-    return apiClient<Opportunity>(`/opportunities/${id}`, { skipAuth: true });
+    return apiClient<Opportunity>(`/opportunities/${id}`);
   },
   report(id: string, payload: { reason: string; description?: string }) {
     return apiClient(`/opportunities/${id}/reports`, {

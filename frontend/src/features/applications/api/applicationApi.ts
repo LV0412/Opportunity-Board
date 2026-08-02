@@ -9,6 +9,15 @@ export const applicationApi = {
       body: JSON.stringify(payload),
     });
   },
+  applyWithResume(opportunityId: string, resume: File, coverLetter: string) {
+    const formData = new FormData();
+    formData.append("resume", resume);
+    formData.append("coverLetter", coverLetter);
+    return apiClient<ApplicationItem>(`/opportunities/${opportunityId}/apply`, {
+      method: "POST",
+      body: formData,
+    });
+  },
   listMine(page = 0, size = 12) {
     return apiClient<PageResponse<ApplicationItem>>(`/applications/me?page=${page}&size=${size}`);
   },

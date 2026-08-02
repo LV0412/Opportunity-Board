@@ -23,9 +23,14 @@ export function PendingOpportunitiesPage() {
   }
 
   async function approve(id: string) {
-    await opportunityApi.approve(id);
-    setMessage("Đã duyệt cơ hội.");
-    await load();
+    setError("");
+    try {
+      await opportunityApi.approve(id);
+      setItems((current) => current.filter((item) => item.id !== id));
+      setMessage("Đã duyệt cơ hội.");
+    } catch (exception) {
+      setError(exception instanceof Error ? exception.message : "Không thể duyệt cơ hội");
+    }
   }
 
   async function reject(id: string) {

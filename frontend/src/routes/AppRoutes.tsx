@@ -32,7 +32,10 @@ export function AppRoutes() {
       <Route path={ROUTES.register} element={<RegisterPage />} />
       <Route path={ROUTES.verifyEmail} element={<VerifyEmailPage />} />
       <Route path={ROUTES.explore} element={<ExplorePage />} />
-      <Route path={`${ROUTES.opportunityDetail}/:id`} element={<OpportunityDetailPage />} />
+      <Route
+        path={`${ROUTES.opportunityDetail}/:id`}
+        element={<ProtectedRoute><OpportunityDetailPage /></ProtectedRoute>}
+      />
 
       <Route
         path={ROUTES.studentDashboard}

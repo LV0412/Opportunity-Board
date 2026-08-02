@@ -11,6 +11,8 @@ import java.util.UUID;
 public interface TagRepository extends JpaRepository<Tag, UUID> {
     Optional<Tag> findBySlug(String slug);
 
+    Optional<Tag> findByNameIgnoreCase(String name);
+
     List<Tag> findBySlugIn(Collection<String> slugs);
 
     boolean existsBySlug(String slug);

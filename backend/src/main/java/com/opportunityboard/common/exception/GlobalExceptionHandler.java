@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -88,6 +89,24 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 HttpStatus.BAD_REQUEST.getReasonPhrase(),
                 "Invalid request parameter: " + exception.getName(),
                 request.getRequestURI(),
+                Instant.now(),
+                List.of()
+        ));
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleMaxUploadSizeExceededException(
+            MaxUploadSizeExceededException exception,
+            HttpHeaders headers,
+            HttpStatusCode status,
+            WebRequest request
+    ) {
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(new ErrorResponse(
+                false,
+                HttpStatus.PAYLOAD_TOO_LARGE.value(),
+                HttpStatus.PAYLOAD_TOO_LARGE.getReasonPhrase(),
+                "Tệp tải lên phải có dung lượng không quá 5 MB",
+                request.getDescription(false).replace("uri=", ""),
                 Instant.now(),
                 List.of()
         ));

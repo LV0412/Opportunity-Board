@@ -38,6 +38,26 @@ class OpportunitySearchIntegrationTests {
     private TestAuthHelper testAuthHelper;
 
     @Test
+    void searchesWithoutOptionalFilters() throws Exception {
+        mockMvc.perform(get("/api/opportunities/search")
+                        .param("sort", "newest")
+                        .param("page", "0")
+                        .param("size", "12"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray());
+    }
+
+    @Test
+    void searchesByPopularityWithoutOptionalFilters() throws Exception {
+        mockMvc.perform(get("/api/opportunities/search")
+                        .param("sort", "popular")
+                        .param("page", "0")
+                        .param("size", "12"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray());
+    }
+
+    @Test
     void searchesApprovedOpportunitiesWithCombinedFilters() throws Exception {
         String organizationToken = registerAndGetToken("search-org@example.com", UserRole.ORGANIZATION);
         String adminToken = registerAndGetToken("search-admin@example.com", UserRole.ADMIN);

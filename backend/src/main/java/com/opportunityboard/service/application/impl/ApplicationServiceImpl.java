@@ -19,18 +19,23 @@ import com.opportunityboard.repository.StudentProfileRepository;
 import com.opportunityboard.security.CustomUserDetails;
 import com.opportunityboard.service.application.ApplicationService;
 import com.opportunityboard.service.notification.NotificationService;
+import com.opportunityboard.infrastructure.storage.StorageService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.UUID;
 
 @Service
 public class ApplicationServiceImpl implements ApplicationService {
+    private static final long MAX_RESUME_SIZE_BYTES = 5 * 1024 * 1024;
+    private static final int MAX_COVER_LETTER_LENGTH = 4000;
     private final ApplicationRepository applicationRepository;
     private final OpportunityRepository opportunityRepository;
     private final StudentProfileRepository studentProfileRepository;
@@ -38,6 +43,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final ResumeRepository resumeRepository;
     private final NotificationService notificationService;
     private final ApplicationMapper applicationMapper;
+    private final StorageService storageService;
 
     public ApplicationServiceImpl(
             ApplicationRepository applicationRepository,
@@ -46,7 +52,8 @@ public class ApplicationServiceImpl implements ApplicationService {
             OrganizationProfileRepository organizationProfileRepository,
             ResumeRepository resumeRepository,
             NotificationService notificationService,
-            ApplicationMapper applicationMapper
+            ApplicationMapper applicationMapper,
+            StorageService storageService
     ) {
         this.applicationRepository = applicationRepository;
         this.opportunityRepository = opportunityRepository;
@@ -55,6 +62,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         this.resumeRepository = resumeRepository;
         this.notificationService = notificationService;
         this.applicationMapper = applicationMapper;
+        this.storageService = storageService;
     }
 
     @Override
@@ -62,18 +70,33 @@ public class ApplicationServiceImpl implements ApplicationService {
     public ApplicationResponse apply(CustomUserDetails currentUser, UUID opportunityId, CreateApplicationRequest request) {
         StudentProfile student = findStudent(currentUser);
         Opportunity opportunity = findOpenApprovedOpportunity(opportunityId);
-        applicationRepository.findByStudentIdAndOpportunityId(student.getId(), opportunity.getId())
-                .ifPresent(existing -> {
-                    throw new ResponseStatusException(HttpStatus.CONFLICT, "You already applied to this opportunity");
-                });
+        ensureNotAlreadyApplied(student, opportunity);
+        return saveApplication(student, opportunity, resolveResume(student, request.resumeId()), request.coverLetter());
+    }
 
-        Application application = new Application();
-        application.setStudent(student);
-        application.setOpportunity(opportunity);
-        application.setResume(resolveResume(student, request.resumeId()));
-        application.setCoverLetter(trimToNull(request.coverLetter()));
-        application.setStatus(ApplicationStatus.APPLIED);
-        return applicationMapper.toResponse(applicationRepository.save(application));
+    @Override
+    @Transactional
+    public ApplicationResponse applyWithResume(
+            CustomUserDetails currentUser,
+            UUID opportunityId,
+            MultipartFile resumeFile,
+            String coverLetter
+    ) {
+        StudentProfile student = findStudent(currentUser);
+        Opportunity opportunity = findOpenApprovedOpportunity(opportunityId);
+        ensureNotAlreadyApplied(student, opportunity);
+        validateResume(resumeFile);
+        validateCoverLetter(coverLetter);
+
+        String fileUrl = storageService.uploadResume(resumeFile);
+        Resume resume = new Resume();
+        resume.setStudent(student);
+        resume.setFileName(safeFileName(resumeFile.getOriginalFilename()));
+        resume.setFileUrl(fileUrl);
+        resume.setPrimaryResume(resumeRepository.findByStudentId(student.getId()).isEmpty());
+        Resume savedResume = resumeRepository.save(resume);
+
+        return saveApplication(student, opportunity, savedResume, coverLetter);
     }
 
     @Override
@@ -156,6 +179,67 @@ public class ApplicationServiceImpl implements ApplicationService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Resume does not belong to current student");
         }
         return resume;
+    }
+
+    private void ensureNotAlreadyApplied(StudentProfile student, Opportunity opportunity) {
+        applicationRepository.findByStudentIdAndOpportunityId(student.getId(), opportunity.getId())
+                .ifPresent(existing -> {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, "You already applied to this opportunity");
+                });
+    }
+
+    private ApplicationResponse saveApplication(
+            StudentProfile student,
+            Opportunity opportunity,
+            Resume resume,
+            String coverLetter
+    ) {
+        validateCoverLetter(coverLetter);
+        Application application = new Application();
+        application.setStudent(student);
+        application.setOpportunity(opportunity);
+        application.setResume(resume);
+        application.setCoverLetter(trimToNull(coverLetter));
+        application.setStatus(ApplicationStatus.APPLIED);
+        return applicationMapper.toResponse(applicationRepository.save(application));
+    }
+
+    private void validateResume(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Resume file is required");
+        }
+        if (file.getSize() > MAX_RESUME_SIZE_BYTES) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Resume file must be 5MB or smaller");
+        }
+        String fileName = file.getOriginalFilename() == null ? "" : file.getOriginalFilename().toLowerCase();
+        if (!"application/pdf".equalsIgnoreCase(file.getContentType()) || !fileName.endsWith(".pdf") || !hasPdfSignature(file)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Resume file must be a valid PDF");
+        }
+    }
+
+    private boolean hasPdfSignature(MultipartFile file) {
+        try {
+            byte[] header = file.getInputStream().readNBytes(5);
+            return header.length == 5
+                    && header[0] == '%'
+                    && header[1] == 'P'
+                    && header[2] == 'D'
+                    && header[3] == 'F'
+                    && header[4] == '-';
+        } catch (IOException exception) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unable to read resume file");
+        }
+    }
+
+    private void validateCoverLetter(String coverLetter) {
+        if (coverLetter != null && coverLetter.length() > MAX_COVER_LETTER_LENGTH) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cover letter must be 4000 characters or fewer");
+        }
+    }
+
+    private String safeFileName(String originalFileName) {
+        String fileName = originalFileName == null || originalFileName.isBlank() ? "resume.pdf" : originalFileName.trim();
+        return fileName.length() <= 120 ? fileName : fileName.substring(fileName.length() - 120);
     }
 
     private void ensureCanView(CustomUserDetails currentUser, Application application) {

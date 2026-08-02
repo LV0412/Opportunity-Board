@@ -57,7 +57,7 @@ export function OrganizationDashboardPage() {
 
       {dashboard ? (
         <div className="space-y-6">
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid overflow-hidden rounded-md border border-outline-variant bg-white sm:grid-cols-2 xl:grid-cols-3 xl:divide-x xl:divide-outline-variant">
             <MetricCard icon={PlusCircle} label="Bài đăng" value={dashboard.totalOpportunities} hint="Tổng cơ hội đã tạo" />
             <MetricCard icon={ClipboardCheck} label="Chờ duyệt" value={dashboard.pendingOpportunities} hint="Đang chờ admin review" />
             <MetricCard icon={BriefcaseBusiness} label="Đã duyệt" value={dashboard.approvedOpportunities} hint="Đang hiển thị công khai" />
@@ -125,7 +125,7 @@ function MetricCard({
   hint: string;
 }) {
   return (
-    <article className="rounded-md border border-border bg-white p-5 shadow-sm">
+    <article className="border-b border-outline-variant bg-white p-5 last:border-b-0 xl:border-b-0">
       <Icon className="h-5 w-5 text-primary" aria-hidden="true" />
       <p className="mt-4 text-sm font-semibold text-muted-foreground">{label}</p>
       <p className="mt-2 text-3xl font-bold">{value}</p>

@@ -24,7 +24,7 @@ export function FileUpload({ label, accept, maxSizeMb, onUpload }: FileUploadPro
     }
 
     if (file.size > maxSizeMb * 1024 * 1024) {
-      setError(`File phải nhỏ hơn hoặc bằng ${maxSizeMb}MB.`);
+      setError(`Tệp phải có dung lượng không quá ${maxSizeMb} MB.`);
       event.target.value = "";
       return;
     }
@@ -34,7 +34,7 @@ export function FileUpload({ label, accept, maxSizeMb, onUpload }: FileUploadPro
       await onUpload(file);
       event.target.value = "";
     } catch (exception) {
-      setError(exception instanceof Error ? exception.message : "Upload thất bại");
+      setError(exception instanceof Error ? exception.message : "Không thể tải tệp lên");
     } finally {
       setIsUploading(false);
     }
@@ -49,7 +49,7 @@ export function FileUpload({ label, accept, maxSizeMb, onUpload }: FileUploadPro
         disabled={isUploading}
         icon={<Upload className="h-4 w-4" aria-hidden="true" />}
       >
-        {isUploading ? "Đang upload..." : label}
+        {isUploading ? "Đang tải lên..." : label}
       </Button>
       {error ? <StatusBanner className="mt-3" variant="error" message={error} /> : null}
     </div>

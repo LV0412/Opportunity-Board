@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { LogIn } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { FormErrorSummary } from "../../components/forms/FormErrorSummary";
 import { Button } from "../../components/ui/Button";
 import { InputField } from "../../components/ui/InputField";
@@ -11,6 +12,8 @@ import { isEmail, requiredMessage } from "../../utils/validators";
 
 export function LoginPage() {
   const { login } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -34,6 +37,10 @@ export function LoginPage() {
     setIsSubmitting(true);
     try {
       await login({ email, password });
+      const requestedPath = (location.state as { from?: string } | null)?.from;
+      if (requestedPath?.startsWith("/")) {
+        navigate(requestedPath, { replace: true });
+      }
     } catch (exception) {
       setError(exception instanceof Error ? exception.message : "Không thể đăng nhập");
     } finally {

@@ -68,3 +68,27 @@ Each app owns its own environment template:
 - Frontend: copy `frontend/.env.example` to `frontend/.env` when local frontend variables are needed.
 
 Vite reads `frontend/.env` automatically. For Spring Boot, set backend variables in your terminal, IDE run configuration, or deployment platform. Do not commit real `.env` files.
+
+## Demo data
+
+The demo seed replaces existing business data and creates complete Student, Organization, and Admin scenarios. From the repository root, run:
+
+```powershell
+.\backend\seed-demo.ps1 -ConfirmReplaceData
+```
+
+Remote databases are blocked by default. To intentionally seed the database configured in `backend/.env` when it is remote, add `-AllowRemoteDatabase`:
+
+```powershell
+.\backend\seed-demo.ps1 -ConfirmReplaceData -AllowRemoteDatabase
+```
+
+Main demo accounts use the shared password `password`:
+
+| Role | Email |
+|---|---|
+| Student | `student@opportunity.local` |
+| Organization | `organization@opportunity.local` |
+| Admin | `admin@opportunity.local` |
+
+The seed includes profiles, resumes, opportunities in every workflow status, bookmarks, applications, notifications, reports, admin reviews, locked/disabled accounts, and audit logs.

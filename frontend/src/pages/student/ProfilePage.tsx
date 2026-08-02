@@ -94,7 +94,7 @@ export function ProfilePage() {
             </form>
 
             <aside className="space-y-4">
-              <FileUpload label="Upload CV PDF" accept="application/pdf" maxSizeMb={MAX_RESUME_SIZE_MB} onUpload={handleResumeUpload} />
+              <FileUpload label="Tải CV PDF lên" accept="application/pdf" maxSizeMb={MAX_RESUME_SIZE_MB} onUpload={handleResumeUpload} />
               <Card className="p-5">
                 <h2 className="font-semibold">CV đã upload</h2>
                 <div className="mt-4 space-y-3">
