@@ -19,4 +19,9 @@ export const organizationApi = {
       body: formData,
     });
   },
+  requestVerification() {
+    return apiClient<OrganizationProfile>("/organizations/me/verification-request", {
+      method: "POST",
+    });
+  },
 };

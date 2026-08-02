@@ -50,6 +50,7 @@ const itemsByRole: Record<UserRole, NavItem[]> = {
     { label: "Dashboard", href: ROUTES.adminDashboard, icon: LayoutDashboard },
     { label: "Chờ duyệt", href: ROUTES.adminPendingOpportunities, icon: ShieldCheck },
     { label: "Báo cáo", href: ROUTES.adminReports, icon: Siren },
+    { label: "Xác minh tổ chức", href: ROUTES.adminOrganizationVerifications, icon: ShieldCheck },
     { label: "Người dùng", href: ROUTES.adminUsers, icon: Users },
     { label: "Danh mục", href: ROUTES.adminCategories, icon: Tags },
   ],

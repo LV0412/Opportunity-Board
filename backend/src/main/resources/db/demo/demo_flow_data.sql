@@ -47,6 +47,10 @@ INSERT INTO users (id, created_at, updated_at, email, password_hash, full_name, 
 ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa0', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'student4@opportunity.local', '$2a$10$YLtMjMLOufAlWraMmcB3iePz0a0jDz9L12UWFXf6hxbUeI/JoraQS', 'Pham Thu Trang', 'STUDENT', 'ACTIVE')
 ON CONFLICT DO NOTHING;
 
+UPDATE users
+SET email_verified_at = CURRENT_TIMESTAMP
+WHERE status = 'ACTIVE';
+
 INSERT INTO student_profiles (id, created_at, updated_at, user_id, university, major, graduation_year, location, bio, interests) VALUES
 ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbb201', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa2', 'FPT University', 'Software Engineering', 2027, 'Ho Chi Minh City', 'Full-stack student interested in products with social impact.', 'Java, React, hackathons, startup internships'),
 ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbb202', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa3', 'University of Economics Ho Chi Minh City', 'Business Analytics', 2026, 'Ho Chi Minh City', 'Data enthusiast looking for scholarships and competitions.', 'Data analysis, scholarships, case competitions'),
@@ -55,11 +59,14 @@ INSERT INTO student_profiles (id, created_at, updated_at, user_id, university, m
 ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbb205', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa0', 'RMIT University Vietnam', 'Digital Marketing', 2027, 'Ha Noi', 'Creative student combining marketing analytics with sustainable business.', 'Marketing, analytics, sustainability, competitions')
 ON CONFLICT DO NOTHING;
 
-INSERT INTO organization_profiles (id, created_at, updated_at, user_id, organization_name, industry, website_url, logo_url, description, verified) VALUES
-('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbb101', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa5', 'FPT Software Talent', 'Information Technology', 'https://fptsoftware.com', 'https://placehold.co/256x256?text=FPT', 'Technology employer offering internships and graduate opportunities.', TRUE),
-('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbb102', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa6', 'Green Future Foundation', 'Non-profit', 'https://example.org/green-future', 'https://placehold.co/256x256?text=GFF', 'Student programs focused on sustainability and community innovation.', FALSE),
-('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbb103', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa7', 'Disabled Demo Organization', 'Education', NULL, NULL, 'Organization used to test disabled-user access.', FALSE),
-('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbb104', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa9', 'VNG Campus Recruitment', 'Technology and Digital Services', 'https://vng.com.vn', 'https://placehold.co/256x256?text=VNG', 'University recruitment team offering engineering, product, data, and design programs.', TRUE)
+INSERT INTO organization_profiles (
+    id, created_at, updated_at, user_id, organization_name, industry, website_url, logo_url, description,
+    verification_status, verification_note, verification_requested_at, verified_at, verified_by
+) VALUES
+('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbb101', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa5', 'FPT Software Talent', 'Information Technology', 'https://fptsoftware.com', 'https://placehold.co/256x256?text=FPT', 'Technology employer offering internships and graduate opportunities.', 'VERIFIED', NULL, CURRENT_TIMESTAMP - INTERVAL '40' DAY, CURRENT_TIMESTAMP - INTERVAL '39' DAY, 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1'),
+('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbb102', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa6', 'Green Future Foundation', 'Non-profit', 'https://example.org/green-future', 'https://placehold.co/256x256?text=GFF', 'Student programs focused on sustainability and community innovation.', 'PENDING', NULL, CURRENT_TIMESTAMP - INTERVAL '2' DAY, NULL, NULL),
+('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbb103', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa7', 'Disabled Demo Organization', 'Education', NULL, NULL, 'Organization used to test disabled-user access.', 'UNVERIFIED', NULL, NULL, NULL, NULL),
+('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbb104', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa9', 'VNG Campus Recruitment', 'Technology and Digital Services', 'https://vng.com.vn', 'https://placehold.co/256x256?text=VNG', 'University recruitment team offering engineering, product, data, and design programs.', 'REJECTED', 'Website information needs to be updated before verification.', CURRENT_TIMESTAMP - INTERVAL '5' DAY, NULL, NULL)
 ON CONFLICT DO NOTHING;
 
 INSERT INTO student_skills (student_profile_id, skill_id) VALUES

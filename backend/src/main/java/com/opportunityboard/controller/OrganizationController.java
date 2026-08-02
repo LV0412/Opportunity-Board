@@ -46,4 +46,11 @@ public class OrganizationController {
     ) {
         return organizationService.uploadLogo(currentUser, file);
     }
+
+    @PostMapping("/me/verification-request")
+    public OrganizationProfileResponse requestVerification(
+            @AuthenticationPrincipal CustomUserDetails currentUser
+    ) {
+        return organizationService.requestVerification(currentUser);
+    }
 }

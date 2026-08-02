@@ -6,6 +6,7 @@ import CategoriesPage from "../pages/admin/CategoriesPage";
 import PendingOpportunitiesPage from "../pages/admin/PendingOpportunitiesPage";
 import ReportsPage from "../pages/admin/ReportsPage";
 import UsersPage from "../pages/admin/UsersPage";
+import OrganizationVerificationsPage from "../pages/admin/OrganizationVerificationsPage";
 import LoginPage from "../pages/auth/LoginPage";
 import RegisterPage from "../pages/auth/RegisterPage";
 import VerifyEmailPage from "../pages/auth/VerifyEmailPage";
@@ -86,6 +87,10 @@ export function AppRoutes() {
       <Route
         path={ROUTES.adminUsers}
         element={<ProtectedRole roles={["ADMIN"]}><UsersPage /></ProtectedRole>}
+      />
+      <Route
+        path={ROUTES.adminOrganizationVerifications}
+        element={<ProtectedRole roles={["ADMIN"]}><OrganizationVerificationsPage /></ProtectedRole>}
       />
       <Route
         path={ROUTES.adminCategories}

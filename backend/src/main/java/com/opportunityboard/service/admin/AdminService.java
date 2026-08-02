@@ -3,11 +3,13 @@ package com.opportunityboard.service.admin;
 import com.opportunityboard.dto.request.admin.SaveCategoryRequest;
 import com.opportunityboard.dto.request.admin.SaveTagRequest;
 import com.opportunityboard.dto.request.admin.UpdateUserStatusRequest;
+import com.opportunityboard.dto.request.admin.RejectOrganizationVerificationRequest;
 import com.opportunityboard.dto.request.opportunity.RejectOpportunityRequest;
 import com.opportunityboard.dto.request.report.UpdateReportStatusRequest;
 import com.opportunityboard.dto.response.admin.AdminUserResponse;
 import com.opportunityboard.dto.response.admin.CategoryResponse;
 import com.opportunityboard.dto.response.admin.TagResponse;
+import com.opportunityboard.dto.response.admin.OrganizationVerificationResponse;
 import com.opportunityboard.dto.response.opportunity.OpportunityResponse;
 import com.opportunityboard.dto.response.report.ReportResponse;
 import com.opportunityboard.security.CustomUserDetails;
@@ -31,6 +33,16 @@ public interface AdminService {
     Page<AdminUserResponse> listUsers(Pageable pageable);
 
     AdminUserResponse updateUserStatus(CustomUserDetails currentUser, UUID userId, UpdateUserStatusRequest request);
+
+    Page<OrganizationVerificationResponse> listPendingOrganizationVerifications(Pageable pageable);
+
+    OrganizationVerificationResponse approveOrganizationVerification(CustomUserDetails currentUser, UUID organizationId);
+
+    OrganizationVerificationResponse rejectOrganizationVerification(
+            CustomUserDetails currentUser,
+            UUID organizationId,
+            RejectOrganizationVerificationRequest request
+    );
 
     List<CategoryResponse> listCategories();
 

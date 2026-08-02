@@ -149,6 +149,7 @@ class BookmarkServiceTest {
                 UUID.randomUUID(),
                 "Org",
                 null,
+                false,
                 0,
                 0,
                 null,

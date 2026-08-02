@@ -1,4 +1,4 @@
-import { Bookmark, CalendarClock, ExternalLink, MapPin } from "lucide-react";
+import { Bookmark, CalendarClock, CircleCheck, ExternalLink, MapPin } from "lucide-react";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ROUTES } from "../../../config/routes";
@@ -56,7 +56,14 @@ export function OpportunityCard({ opportunity, initiallySaved = false, onBookmar
           <a className="mt-3 block text-base font-semibold leading-6 text-foreground hover:text-primary" href={`${ROUTES.opportunityDetail}/${opportunity.id}`}>
             {opportunity.title}
           </a>
-          <p className="mt-1 text-sm text-muted-foreground">{opportunity.organizationName}</p>
+          <p className="mt-1 flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
+            {opportunity.organizationName}
+            {opportunity.organizationVerified ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700" title="Tổ chức đã được quản trị viên xác minh">
+                <CircleCheck className="h-3.5 w-3.5" aria-hidden="true" /> Đã xác minh
+              </span>
+            ) : null}
+          </p>
         </div>
         <button
           className={`grid h-9 w-9 shrink-0 place-items-center rounded-md border transition ${

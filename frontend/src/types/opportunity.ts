@@ -16,6 +16,7 @@ export type Opportunity = {
   organizationId: string;
   organizationName: string;
   organizationLogoUrl: string | null;
+  organizationVerified: boolean;
   viewCount: number;
   bookmarkCount: number;
   latestReviewNote: string | null;

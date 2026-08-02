@@ -1,7 +1,7 @@
 import { apiClient } from "../../../config/apiClient";
 import type { PageResponse } from "../../../types/opportunity";
 import type { UserStatus } from "../../../types/auth";
-import type { AdminReport, AdminReportStatus, AdminUser, Category, Tag } from "../../../types/admin";
+import type { AdminReport, AdminReportStatus, AdminUser, Category, OrganizationVerification, Tag } from "../../../types/admin";
 
 export const adminApi = {
   listReports(page = 0, size = 20) {
@@ -20,6 +20,20 @@ export const adminApi = {
     return apiClient<AdminUser>(`/admin/users/${id}/status`, {
       method: "PATCH",
       body: JSON.stringify({ status }),
+    });
+  },
+  listOrganizationVerifications(page = 0, size = 20) {
+    return apiClient<PageResponse<OrganizationVerification>>(`/admin/organization-verifications?page=${page}&size=${size}`);
+  },
+  approveOrganizationVerification(id: string) {
+    return apiClient<OrganizationVerification>(`/admin/organization-verifications/${id}/approve`, {
+      method: "POST",
+    });
+  },
+  rejectOrganizationVerification(id: string, reason: string) {
+    return apiClient<OrganizationVerification>(`/admin/organization-verifications/${id}/reject`, {
+      method: "POST",
+      body: JSON.stringify({ reason }),
     });
   },
   listCategories() {

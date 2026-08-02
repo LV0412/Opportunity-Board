@@ -1,6 +1,8 @@
 package com.opportunityboard.service.admin.impl;
 
 import com.opportunityboard.common.enums.UserStatus;
+import com.opportunityboard.common.enums.VerificationStatus;
+import com.opportunityboard.dto.request.admin.RejectOrganizationVerificationRequest;
 import com.opportunityboard.dto.request.admin.SaveCategoryRequest;
 import com.opportunityboard.dto.request.admin.SaveTagRequest;
 import com.opportunityboard.dto.request.admin.UpdateUserStatusRequest;
@@ -11,17 +13,20 @@ import com.opportunityboard.dto.request.report.UpdateReportStatusRequest;
 import com.opportunityboard.dto.response.admin.AdminUserResponse;
 import com.opportunityboard.dto.response.admin.CategoryResponse;
 import com.opportunityboard.dto.response.admin.TagResponse;
+import com.opportunityboard.dto.response.admin.OrganizationVerificationResponse;
 import com.opportunityboard.dto.response.opportunity.OpportunityResponse;
 import com.opportunityboard.dto.response.report.ReportResponse;
 import com.opportunityboard.entity.AdminReview;
 import com.opportunityboard.entity.Opportunity;
 import com.opportunityboard.entity.OpportunityCategory;
+import com.opportunityboard.entity.OrganizationProfile;
 import com.opportunityboard.entity.Report;
 import com.opportunityboard.entity.Tag;
 import com.opportunityboard.entity.User;
 import com.opportunityboard.repository.OpportunityCategoryRepository;
 import com.opportunityboard.repository.AdminReviewRepository;
 import com.opportunityboard.repository.OpportunityRepository;
+import com.opportunityboard.repository.OrganizationProfileRepository;
 import com.opportunityboard.repository.ReportRepository;
 import com.opportunityboard.repository.TagRepository;
 import com.opportunityboard.repository.UserRepository;
@@ -39,6 +44,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
+import java.time.Instant;
 
 @Service
 public class AdminServiceImpl implements AdminService {
@@ -52,6 +58,7 @@ public class AdminServiceImpl implements AdminService {
     private final ReportMapper reportMapper;
     private final AdminAuditLogger adminAuditLogger;
     private final NotificationService notificationService;
+    private final OrganizationProfileRepository organizationProfileRepository;
 
     public AdminServiceImpl(
             OpportunityRepository opportunityRepository,
@@ -63,7 +70,8 @@ public class AdminServiceImpl implements AdminService {
             OpportunityMapper opportunityMapper,
             ReportMapper reportMapper,
             AdminAuditLogger adminAuditLogger,
-            NotificationService notificationService
+            NotificationService notificationService,
+            OrganizationProfileRepository organizationProfileRepository
     ) {
         this.opportunityRepository = opportunityRepository;
         this.adminReviewRepository = adminReviewRepository;
@@ -75,6 +83,7 @@ public class AdminServiceImpl implements AdminService {
         this.reportMapper = reportMapper;
         this.adminAuditLogger = adminAuditLogger;
         this.notificationService = notificationService;
+        this.organizationProfileRepository = organizationProfileRepository;
     }
 
     @Override
@@ -159,6 +168,47 @@ public class AdminServiceImpl implements AdminService {
                 saved.getStatus(),
                 saved.getCreatedAt()
         );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<OrganizationVerificationResponse> listPendingOrganizationVerifications(Pageable pageable) {
+        return organizationProfileRepository.findByVerificationStatus(VerificationStatus.PENDING, pageable)
+                .map(this::toVerificationResponse);
+    }
+
+    @Override
+    @Transactional
+    public OrganizationVerificationResponse approveOrganizationVerification(CustomUserDetails currentUser, UUID organizationId) {
+        OrganizationProfile organization = findPendingOrganization(organizationId);
+        validateOrganizationCanBeVerified(organization);
+        User admin = userRepository.findById(currentUser.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Admin user not found"));
+        organization.setVerificationStatus(VerificationStatus.VERIFIED);
+        organization.setVerificationNote(null);
+        organization.setVerifiedAt(Instant.now());
+        organization.setVerifiedBy(admin);
+        OrganizationProfile saved = organizationProfileRepository.save(organization);
+        adminAuditLogger.log(currentUser.getId(), "ORGANIZATION_VERIFIED", "ORGANIZATION", saved.getId(), saved.getOrganizationName());
+        return toVerificationResponse(saved);
+    }
+
+    @Override
+    @Transactional
+    public OrganizationVerificationResponse rejectOrganizationVerification(
+            CustomUserDetails currentUser,
+            UUID organizationId,
+            RejectOrganizationVerificationRequest request
+    ) {
+        OrganizationProfile organization = findPendingOrganization(organizationId);
+        String reason = request.reason().trim();
+        organization.setVerificationStatus(VerificationStatus.REJECTED);
+        organization.setVerificationNote(reason);
+        organization.setVerifiedAt(null);
+        organization.setVerifiedBy(null);
+        OrganizationProfile saved = organizationProfileRepository.save(organization);
+        adminAuditLogger.log(currentUser.getId(), "ORGANIZATION_VERIFICATION_REJECTED", "ORGANIZATION", saved.getId(), reason);
+        return toVerificationResponse(saved);
     }
 
     @Override
@@ -266,6 +316,52 @@ public class AdminServiceImpl implements AdminService {
     private Opportunity findOpportunity(UUID id) {
         return opportunityRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Opportunity not found"));
+    }
+
+    private OrganizationProfile findPendingOrganization(UUID id) {
+        OrganizationProfile organization = organizationProfileRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Organization not found"));
+        if (organization.getVerificationStatus() != VerificationStatus.PENDING) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Organization verification is not pending");
+        }
+        return organization;
+    }
+
+    private void validateOrganizationCanBeVerified(OrganizationProfile organization) {
+        if (isBlank(organization.getOrganizationName()) || isBlank(organization.getIndustry())
+                || isBlank(organization.getWebsiteUrl()) || isBlank(organization.getLogoUrl())
+                || isBlank(organization.getDescription())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Organization profile is incomplete");
+        }
+        try {
+            java.net.URI website = java.net.URI.create(organization.getWebsiteUrl());
+            if (website.getHost() == null || !("http".equalsIgnoreCase(website.getScheme())
+                    || "https".equalsIgnoreCase(website.getScheme()))) {
+                throw new IllegalArgumentException();
+            }
+        } catch (IllegalArgumentException exception) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Organization website is invalid");
+        }
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.isBlank();
+    }
+
+    private OrganizationVerificationResponse toVerificationResponse(OrganizationProfile organization) {
+        return new OrganizationVerificationResponse(
+                organization.getId(),
+                organization.getOrganizationName(),
+                organization.getUser().getEmail(),
+                organization.getIndustry(),
+                organization.getWebsiteUrl(),
+                organization.getLogoUrl(),
+                organization.getDescription(),
+                organization.getVerificationStatus(),
+                organization.getVerificationNote(),
+                organization.getVerificationRequestedAt(),
+                organization.getVerifiedAt()
+        );
     }
 
     private void saveReview(CustomUserDetails currentUser, Opportunity opportunity, AdminReviewStatus status, String note) {

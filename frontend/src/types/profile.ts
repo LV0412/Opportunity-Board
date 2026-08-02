@@ -5,6 +5,8 @@ export type Resume = {
   primaryResume: boolean;
 };
 
+export type VerificationStatus = "UNVERIFIED" | "PENDING" | "VERIFIED" | "REJECTED";
+
 export type StudentProfile = {
   id: string;
   userId: string;
@@ -40,7 +42,10 @@ export type OrganizationProfile = {
   websiteUrl: string | null;
   logoUrl: string | null;
   description: string | null;
-  verified: boolean;
+  verificationStatus: VerificationStatus;
+  verificationNote: string | null;
+  verificationRequestedAt: string | null;
+  verifiedAt: string | null;
 };
 
 export type UpdateOrganizationProfileRequest = {

@@ -22,6 +22,7 @@ public record OpportunityResponse(
         UUID organizationId,
         String organizationName,
         String organizationLogoUrl,
+        boolean organizationVerified,
         long viewCount,
         long bookmarkCount,
         String latestReviewNote,

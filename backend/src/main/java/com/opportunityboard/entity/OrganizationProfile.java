@@ -1,14 +1,19 @@
 package com.opportunityboard.entity;
 
+import com.opportunityboard.common.enums.VerificationStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,8 +39,20 @@ public class OrganizationProfile extends BaseEntity {
     @Column(columnDefinition = "text")
     private String description;
 
-    @Column(nullable = false)
-    private boolean verified = false;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private VerificationStatus verificationStatus = VerificationStatus.UNVERIFIED;
+
+    @Column(columnDefinition = "text")
+    private String verificationNote;
+
+    private Instant verificationRequestedAt;
+
+    private Instant verifiedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "verified_by")
+    private User verifiedBy;
 
     @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Opportunity> opportunities = new HashSet<>();
@@ -88,11 +105,43 @@ public class OrganizationProfile extends BaseEntity {
         this.description = description;
     }
 
-    public boolean isVerified() {
-        return verified;
+    public VerificationStatus getVerificationStatus() {
+        return verificationStatus;
     }
 
-    public void setVerified(boolean verified) {
-        this.verified = verified;
+    public void setVerificationStatus(VerificationStatus verificationStatus) {
+        this.verificationStatus = verificationStatus;
+    }
+
+    public String getVerificationNote() {
+        return verificationNote;
+    }
+
+    public void setVerificationNote(String verificationNote) {
+        this.verificationNote = verificationNote;
+    }
+
+    public Instant getVerificationRequestedAt() {
+        return verificationRequestedAt;
+    }
+
+    public void setVerificationRequestedAt(Instant verificationRequestedAt) {
+        this.verificationRequestedAt = verificationRequestedAt;
+    }
+
+    public Instant getVerifiedAt() {
+        return verifiedAt;
+    }
+
+    public void setVerifiedAt(Instant verifiedAt) {
+        this.verifiedAt = verifiedAt;
+    }
+
+    public User getVerifiedBy() {
+        return verifiedBy;
+    }
+
+    public void setVerifiedBy(User verifiedBy) {
+        this.verifiedBy = verifiedBy;
     }
 }

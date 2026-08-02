@@ -17,5 +17,6 @@ export const ROUTES = {
   adminPendingOpportunities: "/admin/opportunities/pending",
   adminReports: "/admin/reports",
   adminUsers: "/admin/users",
+  adminOrganizationVerifications: "/admin/organization-verifications",
   adminCategories: "/admin/categories",
 };

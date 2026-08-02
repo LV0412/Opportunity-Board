@@ -204,6 +204,7 @@ class OpportunityServiceTest {
                 UUID.randomUUID(),
                 "Org",
                 null,
+                false,
                 0,
                 0,
                 null,

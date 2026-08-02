@@ -4,11 +4,13 @@ import com.opportunityboard.common.dto.PageResponse;
 import com.opportunityboard.dto.request.admin.SaveCategoryRequest;
 import com.opportunityboard.dto.request.admin.SaveTagRequest;
 import com.opportunityboard.dto.request.admin.UpdateUserStatusRequest;
+import com.opportunityboard.dto.request.admin.RejectOrganizationVerificationRequest;
 import com.opportunityboard.dto.request.opportunity.RejectOpportunityRequest;
 import com.opportunityboard.dto.request.report.UpdateReportStatusRequest;
 import com.opportunityboard.dto.response.admin.AdminUserResponse;
 import com.opportunityboard.dto.response.admin.CategoryResponse;
 import com.opportunityboard.dto.response.admin.TagResponse;
+import com.opportunityboard.dto.response.admin.OrganizationVerificationResponse;
 import com.opportunityboard.dto.response.opportunity.OpportunityResponse;
 import com.opportunityboard.dto.response.report.ReportResponse;
 import com.opportunityboard.security.CustomUserDetails;
@@ -87,6 +89,28 @@ public class AdminController {
             @Valid @RequestBody UpdateUserStatusRequest request
     ) {
         return adminService.updateUserStatus(currentUser, id, request);
+    }
+
+    @GetMapping("/organization-verifications")
+    public PageResponse<OrganizationVerificationResponse> listPendingOrganizationVerifications(Pageable pageable) {
+        return PageResponse.from(adminService.listPendingOrganizationVerifications(pageable));
+    }
+
+    @PostMapping("/organization-verifications/{id}/approve")
+    public OrganizationVerificationResponse approveOrganizationVerification(
+            @AuthenticationPrincipal CustomUserDetails currentUser,
+            @PathVariable UUID id
+    ) {
+        return adminService.approveOrganizationVerification(currentUser, id);
+    }
+
+    @PostMapping("/organization-verifications/{id}/reject")
+    public OrganizationVerificationResponse rejectOrganizationVerification(
+            @AuthenticationPrincipal CustomUserDetails currentUser,
+            @PathVariable UUID id,
+            @Valid @RequestBody RejectOrganizationVerificationRequest request
+    ) {
+        return adminService.rejectOrganizationVerification(currentUser, id, request);
     }
 
     @GetMapping("/categories")

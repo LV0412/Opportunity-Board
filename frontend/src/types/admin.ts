@@ -1,4 +1,5 @@
 import type { UserRole, UserStatus } from "./auth";
+import type { VerificationStatus } from "./profile";
 
 export type AdminReportStatus = "PENDING" | "RESOLVED" | "REJECTED";
 
@@ -23,6 +24,20 @@ export type AdminUser = {
   role: UserRole;
   status: UserStatus;
   createdAt: string;
+};
+
+export type OrganizationVerification = {
+  organizationId: string;
+  organizationName: string;
+  email: string;
+  industry: string | null;
+  websiteUrl: string | null;
+  logoUrl: string | null;
+  description: string | null;
+  verificationStatus: VerificationStatus;
+  verificationNote: string | null;
+  verificationRequestedAt: string | null;
+  verifiedAt: string | null;
 };
 
 export type Category = {

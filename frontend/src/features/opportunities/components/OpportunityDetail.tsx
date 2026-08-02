@@ -1,4 +1,4 @@
-import { AlertTriangle, Bookmark, CalendarClock, ExternalLink, FileText, MapPin, Upload, X } from "lucide-react";
+import { AlertTriangle, Bookmark, CalendarClock, CircleCheck, ExternalLink, FileText, MapPin, Upload, X } from "lucide-react";
 import { useState } from "react";
 import { ROUTES } from "../../../config/routes";
 import { applicationApi } from "../../applications/api/applicationApi";
@@ -114,7 +114,14 @@ export function OpportunityDetail({ opportunity }: { opportunity: Opportunity })
         <div>
           <p className="text-sm font-semibold text-primary">{opportunity.categoryName}</p>
           <h1 className="mt-2 text-3xl font-bold">{opportunity.title}</h1>
-          <p className="mt-2 text-muted-foreground">{opportunity.organizationName}</p>
+          <p className="mt-2 flex flex-wrap items-center gap-2 text-muted-foreground">
+            {opportunity.organizationName}
+            {opportunity.organizationVerified ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700" title="Tổ chức đã được quản trị viên xác minh">
+                <CircleCheck className="h-4 w-4" aria-hidden="true" /> Tổ chức đã xác minh
+              </span>
+            ) : null}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <button

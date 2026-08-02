@@ -11,4 +11,6 @@ public interface OrganizationService {
     OrganizationProfileResponse updateMyProfile(CustomUserDetails currentUser, UpdateOrganizationProfileRequest request);
 
     OrganizationProfileResponse uploadLogo(CustomUserDetails currentUser, MultipartFile file);
+
+    OrganizationProfileResponse requestVerification(CustomUserDetails currentUser);
 }

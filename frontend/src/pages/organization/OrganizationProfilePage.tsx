@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
-import { Building2, Save } from "lucide-react";
+import { Building2, CircleCheck, Clock3, Save, ShieldCheck, XCircle } from "lucide-react";
 import { FileUpload } from "../../components/forms/FileUpload";
 import { ErrorState } from "../../components/common/ErrorState";
 import { LoadingState } from "../../components/common/LoadingState";
@@ -20,6 +20,7 @@ export function OrganizationProfilePage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [isRequestingVerification, setIsRequestingVerification] = useState(false);
 
   useEffect(() => {
     organizationApi.getMe().then(setProfile).catch((exception) => {
@@ -62,6 +63,21 @@ export function OrganizationProfilePage() {
     setSuccess("Đã upload logo.");
   }
 
+  async function requestVerification() {
+    setError("");
+    setSuccess("");
+    setIsRequestingVerification(true);
+    try {
+      const updated = await organizationApi.requestVerification();
+      setProfile(updated);
+      setSuccess("Đã gửi yêu cầu xác minh cho quản trị viên.");
+    } catch (exception) {
+      setError(exception instanceof Error ? exception.message : "Không thể gửi yêu cầu xác minh");
+    } finally {
+      setIsRequestingVerification(false);
+    }
+  }
+
   return (
     <main className="min-h-screen bg-background text-foreground">
       <section className="mx-auto max-w-5xl px-6 py-10">
@@ -95,6 +111,20 @@ export function OrganizationProfilePage() {
             </form>
 
             <aside className="space-y-4">
+              <Card className="p-5">
+                <div className="flex items-center gap-2">
+                  <VerificationIcon status={profile.verificationStatus} />
+                  <h2 className="font-semibold">Xác minh tổ chức</h2>
+                </div>
+                <p className="mt-3 text-sm font-semibold">{verificationLabels[profile.verificationStatus]}</p>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">{verificationDescriptions[profile.verificationStatus]}</p>
+                {profile.verificationNote ? <p className="mt-3 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{profile.verificationNote}</p> : null}
+                {(profile.verificationStatus === "UNVERIFIED" || profile.verificationStatus === "REJECTED") ? (
+                  <Button className="mt-4" fullWidth disabled={isRequestingVerification} icon={<ShieldCheck className="h-4 w-4" />} onClick={() => void requestVerification()}>
+                    {isRequestingVerification ? "Đang gửi..." : profile.verificationStatus === "REJECTED" ? "Gửi lại yêu cầu" : "Gửi yêu cầu xác minh"}
+                  </Button>
+                ) : null}
+              </Card>
               <FileUpload label="Upload logo" accept="image/png,image/jpeg,image/webp" maxSizeMb={MAX_LOGO_SIZE_MB} onUpload={handleLogoUpload} />
               <Card className="p-5">
                 <h2 className="font-semibold">Logo hiện tại</h2>
@@ -115,3 +145,24 @@ export function OrganizationProfilePage() {
 }
 
 export default OrganizationProfilePage;
+
+const verificationLabels = {
+  UNVERIFIED: "Chưa xác minh",
+  PENDING: "Đang chờ duyệt",
+  VERIFIED: "Đã xác minh",
+  REJECTED: "Yêu cầu bị từ chối",
+} as const;
+
+const verificationDescriptions = {
+  UNVERIFIED: "Hoàn thiện tên, lĩnh vực, website, logo và mô tả trước khi gửi yêu cầu.",
+  PENDING: "Quản trị viên đang kiểm tra hồ sơ và website của tổ chức.",
+  VERIFIED: "Badge xác minh đang được hiển thị trên các cơ hội của bạn.",
+  REJECTED: "Cập nhật hồ sơ theo lý do bên dưới rồi gửi lại yêu cầu.",
+} as const;
+
+function VerificationIcon({ status }: { status: OrganizationProfile["verificationStatus"] }) {
+  if (status === "VERIFIED") return <CircleCheck className="h-5 w-5 text-emerald-600" aria-hidden="true" />;
+  if (status === "PENDING") return <Clock3 className="h-5 w-5 text-amber-600" aria-hidden="true" />;
+  if (status === "REJECTED") return <XCircle className="h-5 w-5 text-red-600" aria-hidden="true" />;
+  return <ShieldCheck className="h-5 w-5 text-muted-foreground" aria-hidden="true" />;
+}

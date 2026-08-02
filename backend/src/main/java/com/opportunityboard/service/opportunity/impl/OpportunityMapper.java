@@ -1,5 +1,6 @@
 package com.opportunityboard.service.opportunity.impl;
 
+import com.opportunityboard.common.enums.VerificationStatus;
 import com.opportunityboard.dto.response.opportunity.OpportunityResponse;
 import com.opportunityboard.entity.Opportunity;
 import com.opportunityboard.entity.Tag;
@@ -41,6 +42,7 @@ public class OpportunityMapper {
                 opportunity.getOrganization().getId(),
                 opportunity.getOrganization().getOrganizationName(),
                 opportunity.getOrganization().getLogoUrl(),
+                opportunity.getOrganization().getVerificationStatus() == VerificationStatus.VERIFIED,
                 opportunity.getViewCount(),
                 bookmarkRepository.countByOpportunityId(opportunity.getId()),
                 latestReviewNote,
